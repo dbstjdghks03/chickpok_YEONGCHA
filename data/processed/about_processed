@@ -1,0 +1,6 @@
+Contains the data that has been processed and is ready to be used by the machine learning models.
+Usually, it contains the raw data split into train and test sets after some kind of preprocessing was applied.
+This can include cases where the data was cleaned, had features engineered, or was otherwise preprocessed.
+
+머신러닝 모델에 사용될 수 있도록 처리된 데이터를 보관하는 폴더이다.
+주로, raw data를 preprocess한 후 train sets와 test sets로 나누어 저장한다.

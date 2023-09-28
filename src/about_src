@@ -1,0 +1,4 @@
+This is the root directory for all the source code related to the project.
+Note that it also contains a subdirectory "ml" to further separate machine learning related code.
+This is especially beneficial when the machine learning module needs to integrate with another module (for instance, a backend),
+as it maintains a clean separation between different project modules, allowing team members to work on different parts simultaneously without interference.

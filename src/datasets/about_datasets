@@ -1,0 +1,8 @@
+This directory contains scripts that define how to load and handle the data used by the models.
+
+It might also contain subdirectories such as dataset1 for additional separation in case of multiple datasets.
+
+Each directory should contain at least two files:
+dataset.py: Contains PyTorch's Dataset which allows for efficient and flexible data loading.
+datamodule.py: ContainsPyTorch Lighting’s LightningDataModule which organizes the data loading and preparation steps and
+offers a clear and standardized interface for the data used in PyTorch Lightning systems.

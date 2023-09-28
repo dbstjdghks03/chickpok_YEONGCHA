@@ -1,0 +1,6 @@
+This directory contains scripts for running different parts of the project
+, like "train.py" for training a model, "test.py" for testing, and "predict.py" for using a trained model to make predictions.
+
+These scripts typically include PyTorch Lightning’s Trainer class, which takes care of merging the LightningModule
+with the mLightningDataModule, running specified callbacks such as EarlyStopping and Checkpointing
+, and generally automating the entire machine learning process.
