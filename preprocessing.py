@@ -18,15 +18,22 @@ from PIL import Image
 import matplotlib.cm as cm
 
 class PreProcess:
-    def __init__(self, tdms_file):
-        L = list(name for name in tdms_file['RawData'].channels())
+    def __init__(self):
+        pass
+
+    def dataloader(self, path):
+        self.tdms_file = TdmsFile(path)
+        return self.tdms_file
+    
+    def peaknorm(self):
+        L = list(name for name in self.tdms_file['RawData'].channels())
         L_str = list(map(str, L))
         data_lst = []
         peak_lst = []
         for string in L_str:
             num = re.sub(r'[^0-9]', '', string)
             if num:
-                selected_data = tdms_file['RawData'][f'Channel{num}']
+                selected_data = self.tdms_file['RawData'][f'Channel{num}']
                 data_lst.append(selected_data.data)
                 peak_lst.append(max(abs(selected_data.data)))
         data_sum = sum(data_lst)
@@ -34,6 +41,7 @@ class PreProcess:
         maxPeak = max(peak_lst)
 
         self.y = (data_sum / peakAmp) * maxPeak
+        return self.y
 
     def getrgb(self, amplitude, min_amplitude=0, max_amplitude=10):
         # 진폭값을 [0, 1] 범위로 정규화
