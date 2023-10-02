@@ -7,10 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1xsCtjKKSQ8a9n4kwNrYvLaFFR-vd2Ffp
 """
 
-!pip3 install nptdms
-
-!pip3 install librosa
-
 import re
 import numpy as np
 import pandas as pd
@@ -96,6 +92,3 @@ class PreProcess:
         sc_arr = np.array(sc_jpg)'''
 
         return cent
-
-from google.colab import drive
-drive.mount('/content/drive')
