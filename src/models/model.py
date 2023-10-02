@@ -2,7 +2,10 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 from sklearn.decomposition import PCA
+import numpy as np
 from sklearn.svm import SVC
+import plotly.express as px
+
 
 class Model(nn.Module):
     def __init__(self, time, selected_feature, n_components):
@@ -17,6 +20,20 @@ class Model(nn.Module):
         sc = processed_data.sc
         res_reduced = self.PCA(res)
         sc_reduced = self.PCA(sc)
+        
+        'pca feature를 결정하기 위한 설명력 시각화'
+        exp_var_cumul_res = np.cumsum(res_reduced.explained_variance_ratio_)
+        exp_var_cumul_sc = np.cumsum(sc_reduced.explained_variance_ratio_)
+        px.area(
+            x=range(1, exp_var_cumul_res.shape[0] + 1),
+            y=exp_var_cumul_res,
+            labels={"x": "# Components", "y": "Explained Variance"}
+        )
+        px.area(
+            x=range(1, exp_var_cumul_sc.shape[0] + 1),
+            y=exp_var_cumul_sc,
+            labels={"x": "# Components", "y": "Explained Variance"}
+        )
 
         combined_feat = torch.concat((res_reduced, sc_reduced), -1)
         out = self.fc(combined_feat)
