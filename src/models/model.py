@@ -5,7 +5,7 @@ from sklearn.decomposition import PCA
 
 
 class Model(nn.Module):
-    def __init__(self, time, n_components):
+    def __init__(self, n_components):
         super(Model, self).__init__()
         self.Resnet = Resnet()
         self.PCA = PCA(n_components=n_components)
