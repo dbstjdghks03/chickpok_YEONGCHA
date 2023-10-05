@@ -1,0 +1,16 @@
+{
+	"title_s206": "test_04.tdms",
+	"title_batcam2": "test_04.tdms",
+	"Creator": "SM Ins.",
+	"Year": "2022",
+	"Date": "1108",
+	"Train": "차세대전동차",
+		"Length": 122,
+		"Car_num": 6,
+	"Horn": "Yes",
+		"Position": 61,
+	"Place": "오송시험선로",
+	"Photo_sensor_positions": [0, 33.2],
+	"S206_position": 22,
+	"Batcam_position": 23
+}

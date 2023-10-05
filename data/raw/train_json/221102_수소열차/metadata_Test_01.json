@@ -1,0 +1,16 @@
+{
+	"title_s206": "Test_01.tdms",
+	"title_batcam2": "test_01.tdms",
+	"Creator": "SM Ins.",
+	"Year": "2022",
+	"Date": "1102",
+	"Train": "수소열차",
+		"Length": 44,
+		"Car_num": 2,
+	"Horn": "Yes",
+		"Position": 22,
+	"Place": "오송시험선로",
+	"Photo_sensor_positions": [0, 33.2],
+	"S206_position": 22,
+	"Batcam_position": 23
+}
