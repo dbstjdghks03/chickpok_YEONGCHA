@@ -128,7 +128,6 @@ class PreProcess:
 
     def get_sc(self):
         x = self.y
-
         if not isinstance(x, torch.Tensor):
             x = torch.tensor(x)
         # Compute STFT
