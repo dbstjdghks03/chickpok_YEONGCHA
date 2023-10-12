@@ -158,21 +158,6 @@ class PreProcess:
         return spectral_centroid
 
 
-# class YoungDataLoader(DataLoader):
-#     def __init__(self, batch_size, root, shuffle=True, num_workers=0):
-#         trsfm = None
-#         trsfm = transforms.Compose([
-#             transforms.ToPILImage(),
-#             transforms.RandomHorizontalFlip(),
-#             transforms.RandomRotation((-45, 45)),
-#             transforms.ColorJitter(brightness=0.5),
-#             transforms.ToTensor()
-#         ])
-#
-#         self.dataset = YoungDataSet(transform=trsfm, root=root)
-#         super().__init__(dataset=self.dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
-
-
 class YoungDataSet(Dataset):
     def __init__(self, root, transform=None):
         self.transform = transform
@@ -199,7 +184,7 @@ class YoungDataSet(Dataset):
 
         s206_audio, s206_beam = tdms_preprocess(self.root + s206_path)
         batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
-
+        print(self.root + s206_path, s206_audio)
         s206 = PreProcess(s206_audio)
 
         return s206.get_stft(), s206.get_mfcc(), s206.get_sc(), label[0], label[1]
