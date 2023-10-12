@@ -3,6 +3,7 @@ import argparse
 from src.datasets.dataset import YoungDataSet, YoungDataLoader
 import os
 from torch.utils.data.dataset import random_split
+
 parser = argparse.ArgumentParser()
 
 # 3. parser.add_argument로 받아들일 인수를 추가해나간다.
@@ -19,8 +20,8 @@ val_len = len(dataset) - train_len
 
 train_dataset, val_dataset = random_split(dataset, [train_len, val_len])
 
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
+train_loader = torch.DataLoader(train_dataset, batch_size=32, shuffle=True)
+val_loader = torch.DataLoader(val_dataset, batch_size=32, shuffle=False)
 
 # if __name__ == '__main__':
 #     train_dataloader = TrainDataLoader(root, )

@@ -137,19 +137,19 @@ class PreProcess:
         return spectral_centroid
 
 
-class YoungDataLoader(DataLoader):
-    def __init__(self, batch_size, root, shuffle=True, num_workers=0):
-        trsfm = None
-        trsfm = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomRotation((-45, 45)),
-            transforms.ColorJitter(brightness=0.5),
-            transforms.ToTensor()
-        ])
-
-        self.dataset = YoungDataSet(transform=trsfm, root=root)
-        super().__init__(dataset=self.dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
+# class YoungDataLoader(DataLoader):
+#     def __init__(self, batch_size, root, shuffle=True, num_workers=0):
+#         trsfm = None
+#         trsfm = transforms.Compose([
+#             transforms.ToPILImage(),
+#             transforms.RandomHorizontalFlip(),
+#             transforms.RandomRotation((-45, 45)),
+#             transforms.ColorJitter(brightness=0.5),
+#             transforms.ToTensor()
+#         ])
+#
+#         self.dataset = YoungDataSet(transform=trsfm, root=root)
+#         super().__init__(dataset=self.dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
 
 
 class YoungDataSet(Dataset):
@@ -179,9 +179,8 @@ class YoungDataSet(Dataset):
         batcam_audio, batcam_beam = self.tdms_preprocess(batcam_path)
 
         s206 = PreProcess(s206_audio)
-        s206.get_stft()
 
-        return s206.get_stft(), s206.get_mfcc(), s206.get_sc(), label[0]
+        return s206.get_stft(), s206.get_mfcc(), s206.get_sc(), label[0], label[1]
         # if self.transform:
         #     self.data[index] = AudioAugs(self.transform, sampling_rate, p=0.5)
 
@@ -191,47 +190,6 @@ class YoungDataSet(Dataset):
 
     def __len__(self):
         return self.len
-
-
-class FERTestDataLoader(DataLoader):
-    def __init__(self, batch_size=1, shuffle=False, num_workers=0):
-        trsfm = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.ToTensor()
-        ])
-        self.dataset = FERTestDataSet(transform=trsfm)
-        super().__init__(dataset=self.dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
-
-
-class FERTestDataSet(Dataset):
-    def __init__(self, transform=None):
-        self.transform = transform
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-
-        if os.path.isfile(dir_path + '/cache/test/data.pt') and os.path.isfile(dir_path + '/cache/test/label.pt'):
-            self.emotion = torch.load(dir_path + '/cache/test/label.pt')
-            self.data = torch.load(dir_path + '/cache/test/data.pt')
-            self.len = self.emotion.shape[0]
-            return
-
-        df = pd.read_csv('dataset/fer2013.csv')
-        df = df[(df['Usage'] == 'PrivateTest') | (df['Usage'] == 'PublicTest')]
-        self.emotion = torch.LongTensor(df['emotion'].values)
-        self.data = df['pixels'].apply(
-            lambda a: torch.FloatTensor(list(map(int, a.split(' ')))).reshape(1, 48, 48)).values
-        self.len = self.emotion.shape[0]
-
-        torch.save(self.data, 'data_loader/cache/test/data.pt')
-        torch.save(self.emotion, 'data_loader/cache/test/label.pt')
-
-    def __getitem__(self, index):
-        if self.transform:
-            return self.transform(self.data[index]), self.emotion[index]
-        return self.data[index], self.emotion[index]
-
-    def __len__(self):
-        return self.len
-
 
 if __name__ == "__main__":
     data = YoungDataSet(root="/home/gritte/workspace/MyCanvas/data/data_set")
