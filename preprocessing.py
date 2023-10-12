@@ -7,10 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1xsCtjKKSQ8a9n4kwNrYvLaFFR-vd2Ffp
 """
 
-!pip3 install nptdms
-
-!pip3 install librosa
-
 import re
 import numpy as np
 import pandas as pd
@@ -18,19 +14,25 @@ from nptdms import TdmsFile
 import librosa
 from sklearn import preprocessing
 import matplotlib.pyplot as plt
-from PIL import Image
 import matplotlib.cm as cm
 
 class PreProcess:
-    def __init__(self, tdms_file):
-        L = list(name for name in tdms_file['RawData'].channels())
+    def __init__(self):
+        pass
+
+    def dataloader(self, path):
+        self.tdms_file = TdmsFile(path)
+        return self.tdms_file
+    
+    def peaknorm(self):
+        L = list(name for name in self.tdms_file['RawData'].channels())
         L_str = list(map(str, L))
         data_lst = []
         peak_lst = []
         for string in L_str:
             num = re.sub(r'[^0-9]', '', string)
             if num:
-                selected_data = tdms_file['RawData'][f'Channel{num}']
+                selected_data = self.tdms_file['RawData'][f'Channel{num}']
                 data_lst.append(selected_data.data)
                 peak_lst.append(max(abs(selected_data.data)))
         data_sum = sum(data_lst)
@@ -38,8 +40,10 @@ class PreProcess:
         maxPeak = max(peak_lst)
 
         self.y = (data_sum / peakAmp) * maxPeak
+        return self.y
 
-    def getrgb(self, amplitude, min_amplitude=0, max_amplitude=10):
+    def getrgb(self, min_amplitude=0, max_amplitude=10):
+        amplitude = self.y
         # 진폭값을 [0, 1] 범위로 정규화
         normalized_amplitude = (amplitude - min_amplitude) / (max_amplitude - min_amplitude)
 
@@ -96,6 +100,3 @@ class PreProcess:
         sc_arr = np.array(sc_jpg)'''
 
         return cent
-
-from google.colab import drive
-drive.mount('/content/drive')
