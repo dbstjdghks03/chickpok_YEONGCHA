@@ -15,9 +15,13 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = args.epochs
 n_components = 256
 print(root)
+root="/home/gritte/workspace/MyCanvas/data/data_set"
 dataset = YoungDataSet(root=root)
+
 train_len = int(0.8 * len(dataset))
 val_len = len(dataset) - train_len
+print(train_len, val_len)
+
 
 train_dataset, val_dataset = random_split(dataset, [train_len, val_len])
 
