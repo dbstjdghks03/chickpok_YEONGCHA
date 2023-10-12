@@ -1,6 +1,6 @@
 import torch
 import argparse
-from src.datasets.dataset import YoungDataSet, YoungDataLoader
+from src.datasets.dataset import YoungDataSet
 import os
 from torch.utils.data.dataset import random_split
 
@@ -22,7 +22,7 @@ train_dataset, val_dataset = random_split(dataset, [train_len, val_len])
 
 train_loader = torch.DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = torch.DataLoader(val_dataset, batch_size=32, shuffle=False)
-
+#
 # if __name__ == '__main__':
 #     train_dataloader = TrainDataLoader(root, )
 #     test_dataloader = None  # 테스트용 데이터셋
