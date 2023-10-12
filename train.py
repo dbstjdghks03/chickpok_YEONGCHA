@@ -1,13 +1,9 @@
-from src.models.model import Model
 import torch
-from torchvision import transforms
-from PIL import Image
-import torch.nn as nn
-import matplotlib.pyplot as plt
 import argparse
-from src.datasets.dataset import TrainDataSet, TrainDataLoader
+from src.datasets.dataset import YoungDataSet, YoungDataLoader
 import os
-parser = argparse.ArgumentParser()  #
+from torch.utils.data.dataset import random_split
+parser = argparse.ArgumentParser()
 
 # 3. parser.add_argument로 받아들일 인수를 추가해나간다.
 parser.add_argument('--epochs', type=int, default=128)
@@ -16,7 +12,15 @@ root = os.path.dirname(os.path.realpath(__file__))
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = args.epochs
 n_components = 256
-TrainDataLoader(root=root, batch_size=30)
+
+dataset = YoungDataSet(root=root)
+train_len = int(0.8 * len(dataset))
+val_len = len(dataset) - train_len
+
+train_dataset, val_dataset = random_split(dataset, [train_len, val_len])
+
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 
 # if __name__ == '__main__':
 #     train_dataloader = TrainDataLoader(root, )
