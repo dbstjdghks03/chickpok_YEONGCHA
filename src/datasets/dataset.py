@@ -52,7 +52,7 @@ class YoungDataSet(Dataset):
 
                     label = (data['Horn'], data['Position'])
                     self.data_list.append((s206_path, batcam_path, label, data))
-
+        print(self.data_list)
         self.len = len(self.data_list)
 
     def __getitem__(self, idx):
