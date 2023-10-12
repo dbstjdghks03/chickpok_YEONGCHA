@@ -14,7 +14,6 @@ from nptdms import TdmsFile
 import librosa
 from sklearn import preprocessing
 import matplotlib.pyplot as plt
-from PIL import Image
 import matplotlib.cm as cm
 
 class PreProcess:
@@ -43,7 +42,8 @@ class PreProcess:
         self.y = (data_sum / peakAmp) * maxPeak
         return self.y
 
-    def getrgb(self, amplitude, min_amplitude=0, max_amplitude=10):
+    def getrgb(self, min_amplitude=0, max_amplitude=10):
+        amplitude = self.y
         # 진폭값을 [0, 1] 범위로 정규화
         normalized_amplitude = (amplitude - min_amplitude) / (max_amplitude - min_amplitude)
 
