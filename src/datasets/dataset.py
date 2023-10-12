@@ -176,6 +176,7 @@ class YoungDataSet(Dataset):
     def __init__(self, root, transform=None):
         self.transform = transform
         self.data_list = []
+        self.root = root
         print(root + '/train_json')
         for dirpath, dirnames, files in os.walk(root + '/train_json'):
             print(f'Found directory: {dirpath}')
@@ -195,8 +196,8 @@ class YoungDataSet(Dataset):
     def __getitem__(self, idx):
         s206_path, batcam_path, label, data = self.data_list[idx]
 
-        s206_audio, s206_beam = tdms_preprocess(s206_path)
-        batcam_audio, batcam_beam = tdms_preprocess(batcam_path)
+        s206_audio, s206_beam = tdms_preprocess(self.root + s206_path)
+        batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
 
         s206 = PreProcess(s206_audio)
 
