@@ -14,15 +14,15 @@ root = os.path.dirname(os.path.realpath(__file__))
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = args.epochs
 n_components = 256
-
+print(root)
 dataset = YoungDataSet(root=root)
 train_len = int(0.8 * len(dataset))
 val_len = len(dataset) - train_len
 
 train_dataset, val_dataset = random_split(dataset, [train_len, val_len])
 
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
+train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=4, shuffle=False)
 #
 # if __name__ == '__main__':
 #     train_dataloader = TrainDataLoader(root, )
