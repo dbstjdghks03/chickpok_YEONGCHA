@@ -117,6 +117,6 @@ class FERTestDataSet(Dataset):
 
 
 if __name__ == "__main__":
-    data = YoungDataSet(root="MyCanvas/data/data_set")
+    data = YoungDataSet(root="/home/gritte/workspace/MyCanvas/data/data_set")
     print(data)
 
