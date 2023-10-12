@@ -24,7 +24,25 @@ import torch
 
 __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 
+def tdms_preprocess(tdms_path):
+    tdms_file = TdmsFile(tdms_path)
+    L = list(name for name in tdms_file['RawData'].channels())
+    L_str = list(map(str, L))
+    data_lst = []
+    peak_lst = []
+    for string in L_str:
+        num = re.sub(r'[^0-9]', '', string)
+        if num:
+            selected_data = tdms_file['RawData'][f'Channel{num}']
+            data_lst.append(selected_data.data)
+            peak_lst.append(max(abs(selected_data.data)))
+    data_sum = sum(data_lst)
+    peakAmp = max(abs(data_sum))
+    maxPeak = max(peak_lst)
 
+    y = (data_sum / peakAmp) * maxPeak
+    Beampower = None
+    return y, Beampower
 class PreProcess:
     def __init__(self, tdms_file):
         L = list(name for name in tdms_file['RawData'].channels())
@@ -177,8 +195,8 @@ class YoungDataSet(Dataset):
     def __getitem__(self, idx):
         s206_path, batcam_path, label, data = self.data_list[idx]
 
-        # s206_audio, s206_beam = self.tdms_preprocess(s206_path)
-        # batcam_audio, batcam_beam = self.tdms_preprocess(batcam_path)
+        s206_audio, s206_beam = tdms_preprocess(s206_path)
+        batcam_audio, batcam_beam = tdms_preprocess(batcam_path)
 
         s206 = PreProcess(s206_audio)
 
