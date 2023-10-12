@@ -13,7 +13,7 @@ from sklearn import preprocessing
 # from PIL import Image
 # import matplotlib.cm as cm
 import json
-from src.data.preprocessing import PreProcess
+# from src.data.preprocessing import PreProcess
 # # from src.data.preprocessing import AudioAugs
 
 __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
@@ -38,6 +38,7 @@ class YoungDataSet(Dataset):
     def __init__(self, root, transform=None):
         self.transform = transform
         self.data_list = []
+        print(root + '/train_json')
         for dirpath, dirnames, files in os.walk(root + '/train_json'):
             print(f'Found directory: {dirpath}')
             for file_name in files:
@@ -116,5 +117,6 @@ class FERTestDataSet(Dataset):
 
 
 if __name__ == "__main__":
-    YoungDataSet(root="")
+    data = YoungDataSet(root="MyCanvas/data/data_set")
+    print(data)
 
