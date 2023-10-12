@@ -23,6 +23,8 @@ import torchaudio
 import torch
 
 __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
+
+
 class PreProcess:
     def __init__(self, tdms_file):
         L = list(name for name in tdms_file['RawData'].channels())
@@ -175,8 +177,8 @@ class YoungDataSet(Dataset):
     def __getitem__(self, idx):
         s206_path, batcam_path, label, data = self.data_list[idx]
 
-        s206_audio, s206_beam = self.tdms_preprocess(s206_path)
-        batcam_audio, batcam_beam = self.tdms_preprocess(batcam_path)
+        # s206_audio, s206_beam = self.tdms_preprocess(s206_path)
+        # batcam_audio, batcam_beam = self.tdms_preprocess(batcam_path)
 
         s206 = PreProcess(s206_audio)
 
@@ -191,7 +193,7 @@ class YoungDataSet(Dataset):
     def __len__(self):
         return self.len
 
+
 if __name__ == "__main__":
     data = YoungDataSet(root="/home/gritte/workspace/MyCanvas/data/data_set")
     print(data)
-
