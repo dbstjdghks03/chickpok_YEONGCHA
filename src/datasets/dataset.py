@@ -45,6 +45,7 @@ def tdms_preprocess(tdms_path):
     return y, Beampower
 class PreProcess:
     def __init__(self, tdms_file):
+        print(tdms_file['RawData'].channels())
         L = list(name for name in tdms_file['RawData'].channels())
         L_str = list(map(str, L))
         data_lst = []
