@@ -178,7 +178,7 @@ class YoungDataSet(Dataset):
                     batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
                                                data['title_batcam2'])
 
-                    label = (class_to_idx(data['Horn']),int(data['Position']))
+                    label = (class_to_idx[data['Horn']],int(data['Position']))
                     self.data_list.append((s206_path, batcam_path, label, data))
         self.len = len(self.data_list)
 
