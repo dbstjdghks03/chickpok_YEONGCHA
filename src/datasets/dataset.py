@@ -23,6 +23,13 @@ import torch
 import librosa
 __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 
+
+def get_numpy_from_nonfixed_2d_array(aa, fixed_length=4000000, padding_value=0):
+    rows = []
+    for a in aa:
+        rows.append(np.pad(a, (0, fixed_length), 'constant', constant_values=padding_value)[:fixed_length])
+    return np.concatenate(rows, axis=0).reshape(-1, fixed_length)
+
 class_to_idx = {
     'Yes': 0,
     'No': 1
@@ -161,11 +168,12 @@ class YoungDataSet(Dataset):
     def __getitem__(self, idx):
         s206_path, batcam_path, horn, position, data = self.data_list[idx]
 
-        s206_audio = TdmsFile(self.root + s206_path)
+        s206_audio = get_numpy_from_nonfixed_2d_array(TdmsFile(self.root + s206_path))
         # batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
         print(self.root + s206_path, s206_audio)
         s206 = PreProcess(s206_audio)
         print(s206.get_stft().shape, s206.get_mfcc().shape, s206.get_sc().shape, horn)
+
         return s206.get_stft(), s206.get_mfcc(), s206.get_sc(), horn, position
         # if self.transform:
         #     self.data[index] = AudioAugs(self.transform, sampling_rate, p=0.5)
