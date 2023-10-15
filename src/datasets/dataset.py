@@ -21,18 +21,21 @@ import numpy as np
 import torchaudio
 import torch
 import librosa
+
 __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 
 
 def get_numpy_from_nonfixed_2d_array(input, fixed_length=4000000, padding_value=0):
-
     output = np.pad(input, (0, fixed_length), 'constant', constant_values=padding_value)[:fixed_length]
     return output
+
 
 class_to_idx = {
     'Yes': 0,
     'No': 1
 }
+
+
 def tdms_preprocess(tdms_path):
     tdms_file = TdmsFile(tdms_path)
     L = list(name for name in tdms_file['RawData'].channels())
@@ -52,6 +55,8 @@ def tdms_preprocess(tdms_path):
     y = (data_sum / peakAmp) * maxPeak
     Beampower = None
     return y, Beampower
+
+
 class PreProcess:
     def __init__(self, tdms_file):
         print(tdms_file['RawData'], tdms_file['RawData'].channels())
@@ -69,7 +74,7 @@ class PreProcess:
         peakAmp = max(abs(data_sum))
         maxPeak = max(peak_lst)
 
-        self.y = get_numpy_from_nonfixed_2d_array(torch.tensor((data_sum / peakAmp) * maxPeak))
+        self.y = get_numpy_from_nonfixed_2d_array((data_sum / peakAmp) * maxPeak)
 
     def getrgb(self, amplitude, min_amplitude=0, max_amplitude=10):
         # 진폭값을 [0, 1] 범위로 정규화
@@ -91,13 +96,8 @@ class PreProcess:
         print(self.y)
         mfcc = librosa.feature.mfcc(y=self.y, sr=22050, n_mfcc=10, n_fft=640, hop_length=256)
         mfcc = preprocessing.scale(mfcc, axis=1)
-        pad2d = lambda a, i: a[:, 0:i] if a.shape[1] > i else np.hstack((a, np.zeros((a.shape[0], i - a.shape[1]))))
 
-        mean = mfcc.mean(dim=1, keepdim=True)
-        std = mfcc.std(dim=1, keepdim=True)
-        padded_mfcc = (mfcc - mean) / std
 
-        padded_mfcc = pad2d(padded_mfcc, 4000000)
 
         '''pad2d = lambda a, i: a[:, 0:i] if a.shape[1] > i else np.hstack((a, np.zeros((a.shape[0], i-a.shape[1]))))
         padded_mfcc = pad2d(mfcc, 6700)'''
@@ -112,7 +112,7 @@ class PreProcess:
         plt.savefig('mfcc.jpg')
         plt.show()'''
 
-        return self.getrgb(padded_mfcc, padded_mfcc.min(), padded_mfcc.max())
+        return self.getrgb(mfcc, mfcc.min(), mfcc.max())
 
     def get_stft(self):
         x = self.y
