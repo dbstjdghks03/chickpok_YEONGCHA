@@ -71,7 +71,7 @@ class PreProcess:
         peakAmp = max(abs(data_sum))
         maxPeak = max(peak_lst)
 
-        self.y = torch.tensor((data_sum / peakAmp) * maxPeak)
+        self.y = get_numpy_from_nonfixed_2d_array(torch.tensor((data_sum / peakAmp) * maxPeak))
 
     def getrgb(self, amplitude, min_amplitude=0, max_amplitude=10):
         # 진폭값을 [0, 1] 범위로 정규화
@@ -169,7 +169,7 @@ class YoungDataSet(Dataset):
     def __getitem__(self, idx):
         s206_path, batcam_path, horn, position, data = self.data_list[idx]
 
-        s206_audio = get_numpy_from_nonfixed_2d_array(TdmsFile(self.root + s206_path))
+        s206_audio = TdmsFile(self.root + s206_path)
         # batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
         print(self.root + s206_path, s206_audio)
         s206 = PreProcess(s206_audio)
