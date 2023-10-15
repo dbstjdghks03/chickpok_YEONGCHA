@@ -66,4 +66,4 @@ for dirpath, dirnames, files in os.walk('//home/gritte/workspace/MyCanvas/data/d
 
             # 그래프를 화면에 보이기
             plt.tight_layout()  # 자동으로 레이아웃을 조절하여 오버랩 방지
-            plt.savefig(folder_name + '/'+data['title_s206'])
+            plt.savefig(folder_name + '/'+data['title_s206'].split('.')[0]+'.png')
