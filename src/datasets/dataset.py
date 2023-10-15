@@ -91,11 +91,13 @@ class PreProcess:
         mfcc = librosa.feature.mfcc(y=self.y, sr=22050, n_mfcc=10, n_fft=640, hop_length=256)
         mfcc = preprocessing.scale(mfcc, axis=1)
         pad2d = lambda a, i: a[:, 0:i] if a.shape[1] > i else np.hstack((a, np.zeros((a.shape[0], i - a.shape[1]))))
-        mfcc = pad2d(mfcc, 4000000)
 
         mean = mfcc.mean(dim=1, keepdim=True)
         std = mfcc.std(dim=1, keepdim=True)
-        mfcc = (mfcc - mean) / std
+        padded_mfcc = (mfcc - mean) / std
+
+        padded_mfcc = pad2d(padded_mfcc, 4000000)
+
         '''pad2d = lambda a, i: a[:, 0:i] if a.shape[1] > i else np.hstack((a, np.zeros((a.shape[0], i-a.shape[1]))))
         padded_mfcc = pad2d(mfcc, 6700)'''
 
@@ -109,8 +111,7 @@ class PreProcess:
         plt.savefig('mfcc.jpg')
         plt.show()'''
 
-        # return self.getrgb(padded_mfcc, padded_mfcc.min(), padded_mfcc.max())
-        return self.getrgb(mfcc, mfcc.min(), mfcc.max())
+        return self.getrgb(padded_mfcc, padded_mfcc.min(), padded_mfcc.max())
 
     def get_stft(self):
         x = self.y
