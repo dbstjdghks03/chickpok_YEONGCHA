@@ -86,7 +86,7 @@ class PreProcess:
         mfcc_transform = torchaudio.transforms.MFCC(
             sample_rate=22050,
             n_mfcc=100,
-            melkwargs={"n_fft": 640, "hop_length": 256, "n_mels": 23}
+            melkwargs={"n_fft": 640, "hop_length": 256}
             # default n_mels=23, you can adjust based on your requirements
         )
 
