@@ -18,7 +18,6 @@ root = args.root
 epochs = args.epochs
 n_components = 256
 print(root)
-root="/home/gritte/workspace/MyCanvas/data/data_set"
 dataset = YoungDataSet(root=root)
 
 train_len = int(0.8 * len(dataset))
