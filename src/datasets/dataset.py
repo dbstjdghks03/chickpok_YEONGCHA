@@ -27,6 +27,7 @@ __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 def get_numpy_from_nonfixed_2d_array(aa, fixed_length=4000000, padding_value=0):
     rows = []
     for a in aa:
+        print(a.shape)
         rows.append(np.pad(a, (0, fixed_length), 'constant', constant_values=padding_value)[:fixed_length])
     return np.concatenate(rows, axis=0).reshape(-1, fixed_length)
 
