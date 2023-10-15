@@ -9,9 +9,12 @@ parser = argparse.ArgumentParser()
 
 # 3. parser.add_argument로 받아들일 인수를 추가해나간다.
 parser.add_argument('--epochs', type=int, default=128)
+parser.add_argument('--root', type=str)
+
 args = parser.parse_args()
-root = os.path.dirname(os.path.realpath(__file__))
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+root = args.root
 epochs = args.epochs
 n_components = 256
 print(root)

@@ -60,7 +60,7 @@ class PreProcess:
 
     def get_mfcc(self):
         mfcc_transform = torchaudio.transforms.MFCC(
-            sample_rate=25600,
+            sample_rate=22050,
             n_mfcc=100,
             melkwargs={"n_fft": 640, "hop_length": 256, "n_mels": 23}
             # default n_mels=23, you can adjust based on your requirements
@@ -123,7 +123,7 @@ class PreProcess:
         magnitude = specgram.abs()
 
         # Compute the spectral centroid
-        freqs = torch.linspace(0, 25600 / 2, magnitude.size(1), dtype=torch.float)
+        freqs = torch.linspace(0, 22050 / 2, magnitude.size(1), dtype=torch.float)
         spectral_centroid = torch.sum(freqs * magnitude) / torch.sum(magnitude)
 
         '''times = librosa.times_like(cent)
