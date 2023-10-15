@@ -88,6 +88,7 @@ class PreProcess:
         return arr
 
     def get_mfcc(self):
+        print(self.y)
         mfcc = librosa.feature.mfcc(y=self.y, sr=22050, n_mfcc=10, n_fft=640, hop_length=256)
         mfcc = preprocessing.scale(mfcc, axis=1)
         pad2d = lambda a, i: a[:, 0:i] if a.shape[1] > i else np.hstack((a, np.zeros((a.shape[0], i - a.shape[1]))))
