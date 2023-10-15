@@ -94,7 +94,7 @@ class PreProcess:
             melkwargs={"n_fft": 640, "hop_length": 256}
             # default n_mels=23, you can adjust based on your requirements
         )
-
+        print(self.y.shape)
         mfcc = mfcc_transform(self.y)
 
         mean = mfcc.mean(dim=1, keepdim=True)
