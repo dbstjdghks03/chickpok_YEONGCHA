@@ -88,14 +88,10 @@ class PreProcess:
         return arr
 
     def get_mfcc(self):
-        mfcc_transform = torchaudio.transforms.MFCC(
-            sample_rate=22050,
-            n_mfcc=100,
-            melkwargs={"n_fft": 640, "hop_length": 256}
-            # default n_mels=23, you can adjust based on your requirements
-        )
-        print(self.y.shape)
-        mfcc = mfcc_transform(self.y)
+        mfcc = librosa.feature.mfcc(y=self.y, sr=22050, n_mfcc=10, n_fft=640, hop_length=256)
+        mfcc = preprocessing.scale(mfcc, axis=1)
+        pad2d = lambda a, i: a[:, 0:i] if a.shape[1] > i else np.hstack((a, np.zeros((a.shape[0], i - a.shape[1]))))
+        mfcc = pad2d(mfcc, 4000000)
 
         mean = mfcc.mean(dim=1, keepdim=True)
         std = mfcc.std(dim=1, keepdim=True)
