@@ -24,12 +24,10 @@ import librosa
 __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 
 
-def get_numpy_from_nonfixed_2d_array(aa, fixed_length=4000000, padding_value=0):
-    print(aa.shape)
-    rows = []
-    for a in aa:
-        rows.append(np.pad(a, (0, fixed_length), 'constant', constant_values=padding_value)[:fixed_length])
-    return np.concatenate(rows, axis=0).reshape(-1, fixed_length)
+def get_numpy_from_nonfixed_2d_array(input, fixed_length=4000000, padding_value=0):
+
+    output = np.pad(input, (0, fixed_length), 'constant', constant_values=padding_value)[:fixed_length]
+    return output
 
 class_to_idx = {
     'Yes': 0,
