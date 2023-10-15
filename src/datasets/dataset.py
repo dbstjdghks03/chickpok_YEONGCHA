@@ -25,8 +25,8 @@ import torch
 __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 
 class_to_idx = {
-    'O': 0,
-    'X': 1
+    'Yes': 0,
+    'No': 1
 }
 def tdms_preprocess(tdms_path):
     tdms_file = TdmsFile(tdms_path)
