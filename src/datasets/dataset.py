@@ -177,20 +177,23 @@ class YoungDataSet(Dataset):
                     s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206', data['title_s206'])
                     batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
                                                data['title_batcam2'])
-
-                    label = (class_to_idx[data['Horn']],int(data['Position']))
-                    self.data_list.append((s206_path, batcam_path, label, data))
+                    horn = class_to_idx[data['Horn']]
+                    if horn == "Yes":
+                        position = int(data['Position'])
+                    else:
+                        position = ''
+                    self.data_list.append((s206_path, batcam_path, horn, position, data))
         self.len = len(self.data_list)
 
     def __getitem__(self, idx):
-        s206_path, batcam_path, label, data = self.data_list[idx]
+        s206_path, batcam_path, horn, position, data = self.data_list[idx]
 
         s206_audio, s206_beam = tdms_preprocess(self.root + s206_path)
         batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
         print(self.root + s206_path, s206_audio)
         s206 = PreProcess(s206_audio)
 
-        return s206.get_stft(), s206.get_mfcc(), s206.get_sc(), label[0], label[1]
+        return s206.get_stft(), s206.get_mfcc(), s206.get_sc(), horn, position
         # if self.transform:
         #     self.data[index] = AudioAugs(self.transform, sampling_rate, p=0.5)
 
