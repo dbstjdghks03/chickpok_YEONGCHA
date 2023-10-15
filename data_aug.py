@@ -302,3 +302,51 @@ class RandomPhNoise(object):
                                  n_fft=self.fft_params['n_fft'][win_idx])
         return sample
 
+
+class AudioAugs(object):
+    def __init__(self, k_augs, fs, p=0.5, snr_db=30):
+        self.noise_vec = ['awgn', 'abgn', 'apgn', 'argn', 'avgn', 'aun', 'phn', 'sine']
+        augs = {}
+        for aug in k_augs:
+            if aug == 'amp':
+                augs['amp'] = RandomAmp(p=p, low=0.5, high=1.3)
+            elif aug == 'flip':
+                augs['flip'] = RandomFlip(p)
+            elif aug == 'neg':
+                augs['neg'] = RandomAdd180Phase(p)
+            elif aug == 'awgn':
+                augs['awgn'] = RandomAdditiveWhiteGN(p=p, snr_db=snr_db)
+            elif aug == 'abgn':
+                augs['abgn'] = RandomAdditiveBlueGN(p=p, snr_db=snr_db)
+            elif aug == 'argn':
+                augs['argn'] = RandomAdditiveRedGN(p=p, snr_db=snr_db)
+            elif aug == 'avgn':
+                augs['avgn'] = RandomAdditiveVioletGN(p=p, snr_db=snr_db)
+            elif aug == 'apgn':
+                augs['apgn'] = RandomAdditivePinkGN(p=p, snr_db=snr_db)
+            elif aug == 'sine':
+                augs['sine'] = RandomAddSine(p=p, fs=fs)
+            elif aug == 'ampsegment':
+                augs['ampsegment'] = RandomAmpSegment(p=p, low=0.5, high=1.3, max_len=int(0.1 * fs))
+            elif aug == 'aun':
+                augs['aun'] = RandomAdditiveUN(p=p, snr_db=snr_db)
+            elif aug == 'phn':
+                augs['phn'] = RandomPhNoise(p=p, fs=fs, sgm=0.01)
+            elif aug == 'fshift':
+                augs['fshift'] = RandomFreqShift(fs=fs, sgm=1, p=p)
+            else:
+                raise ValueError("{} not supported".format(aug))
+        self.augs = augs
+        self.augs_signal = [a for a in augs if a not in self.noise_vec]
+        self.augs_noise = [a for a in augs if a in self.noise_vec]
+
+    def __call__(self, sample, **kwargs):
+        augs = self.augs_signal.copy()
+        augs_noise = self.augs_noise
+        random.shuffle(augs)
+        if len(augs_noise) > 0:
+            i = random.randint(0, len(augs_noise) - 1)
+            augs.append(augs_noise[i])
+        for aug in augs:
+            sample = self.augs[aug](sample)
+        return sample
