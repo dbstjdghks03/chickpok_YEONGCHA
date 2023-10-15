@@ -15,13 +15,13 @@ from sklearn import preprocessing
 import json
 # from src.data.preprocessing import PreProcess
 # # from src.data.preprocessing import AudioAugs
-
+import
 import re
 from nptdms import TdmsFile
 import numpy as np
 import torchaudio
 import torch
-
+import librosa
 __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 
 class_to_idx = {
@@ -131,34 +131,8 @@ class PreProcess:
         return self.getrgb(log_spectrogram, log_spectrogram.min(), log_spectrogram.max())
 
     def get_sc(self):
-        x = self.y
-        if not isinstance(x, torch.Tensor):
-            x = torch.tensor(x)
-        # Compute STFT
-        specgram = torchaudio.transforms.Spectrogram(
-            n_fft=640,
-            win_length=640,
-            hop_length=256,
-            power=None  # To get complex output, not magnitude squared
-        )(x)
-
-        # Calculate magnitude
-        magnitude = specgram.abs()
-
-        # Compute the spectral centroid
-        freqs = torch.linspace(0, 22050 / 2, magnitude.size(1), dtype=torch.float)
-        spectral_centroid = torch.sum(freqs * magnitude) / torch.sum(magnitude)
-
-        '''times = librosa.times_like(cent)
-        # librosa.display.specshow(librosa.amplitude_to_db(np.abs(librosa.stft(y)), ref=np.max), y_axis='linear', x_axis='time')
-        plt.plot(times, cent.T, color='black')
-        plt.axis('off')
-        plt.show()
-        plt.savefig('sc.jpg')
-        sc_jpg = Image.open('stft.jpg')
-        sc_arr = np.array(sc_jpg)'''
-
-        return spectral_centroid
+        cent = librosa.feature.spectral_centroid(y=self.y, sr=22050)
+        return cent
 
 
 class YoungDataSet(Dataset):
