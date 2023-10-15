@@ -1,53 +1,10 @@
-from preprocessing import PreProcess
 import numpy as np
-
 import librosa
-import matplotlib.pyplot as plt
-
-
-
-class noise(object):
-    def __init__(self, noise_factor) -> None:
-        self.noise_factor = noise_factor
-
-    def __call__(self, data):
-        """
-        원본 데이터에 노이즈를 추가합니다.
-        noise factor를 통해 조절합니다.
-        """
-        noise = np.random.randn(len(data))
-        augmented_data = data + self.noise_factor * noise
-        # Cast back to same data type
-        augmented_data = augmented_data.astype(type(data[0]))
-        return augmented_data
-
-
-class shifting(object):
-    def __init__(self, sampling_rate, shift_max, shift_direction) -> None:
-        self.sampling_rate = sampling_rate
-        self.shift_max = shift_max
-        self.shift_direction = shift_direction
-
-    def __call__(self, data):
-        """
-        원본 데이터를 좌우로 이동시킵니다.
-        shift_max를 통해 최대 얼마까지 이동시킬지 조절합니다.
-        """
-        shift = np.random.randint(self.sampling_rate * self.shift_max+1)
-        if self.shift_direction == 'right':
-            shift = -shift
-        elif self.shift_direction == 'both':
-            direction = np.random.randint(0, 2)
-            if direction == 1:
-                shift = -shift
-        augmented_data = np.roll(data, shift)
-        # Set to silence for heading/ tailing
-        if shift > 0:
-            augmented_data[:shift] = 0
-        else:
-            augmented_data[shift:] = 0
-        return augmented_data
-
+import random
+import scipy
+import torch
+import torch.nn.functional as F
+ 
 
 class change_pitch(object):
     def __init__(self, sampling_rate, pitch_factor) -> None:
@@ -59,4 +16,289 @@ class change_pitch(object):
         원본 데이터의 피치를 조절합니다.
         """
         return librosa.effects.pitch_shift(data, self.sampling_rate, self.pitch_factor)
+
+
+class RandomLPHPFilter(object):
+    def __init__(self, fs, p=0.5, fc_lp=None, fc_hp=None):
+        self.p = p
+        self.fs = fs
+        self.fc_lp = fc_lp
+        self.fc_hp = fc_hp
+        self.num_taps = 15
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            a = 0.25
+            if random.random() < 0.5:
+                fc = 0.5 + random.random() * 0.25
+                filt = scipy.signal.firwin(self.num_taps, fc, window='hamming')
+            else:
+                fc = random.random() * 0.25
+                filt = scipy.signal.firwin(self.num_taps, fc, window='hamming', pass_zero=False)
+            filt = torch.from_numpy(filt).float()
+            filt = filt / filt.sum()
+            sample = F.pad(sample.view(1, 1, -1), (filt.shape[0]//2, filt.shape[0]//2), mode="reflect")
+            sample = F.conv1d(sample, filt.view(1, 1, -1), stride=1, groups=1)
+            sample = sample.view(-1)
+        return sample
+
+
+class RandomAmp(object):
+    def __init__(self, low, high, p=0.5):
+        self.low = low
+        self.high = high
+        self.p = p
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            amp = torch.FloatTensor(1).uniform_(self.low, self.high)
+            sample.mul_(amp)
+        return sample
+
+
+class RandomFlip(object):
+    def __init__(self, p=0.5):
+        self.p = p
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            sample.data = torch.flip(sample.data, dims=[-1, ])
+        return sample
+
+
+class RandomAdd180Phase(object):
+    def __init__(self, p=0.5):
+        self.p = p
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            sample.mul_(-1)
+        return sample
+    
+
+class RandomAdditiveWhiteGN(object):
+    def __init__(self, p=0.5, snr_db=30):
+        self.snr_db = snr_db
+        self.min_snr_db = 30
+        self.p = p
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            s = torch.sqrt(torch.mean(sample ** 2))
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            sgm = s * 10 ** (-snr_db / 20.)
+            w = torch.randn_like(sample).mul_(sgm)
+            sample.add_(w)
+        return sample
+
+
+class RandomAdditiveUN(object):
+    def __init__(self, snr_db=35, p=0.5):
+        self.snr_db = snr_db
+        self.min_snr_db = 30
+        self.p = p
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            s = torch.sqrt(torch.mean(sample ** 2))
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            sgm = s * 10 ** (-snr_db / 20.) * np.sqrt(3)
+            w = torch.rand_like(sample).mul_(2 * sgm).add_(-sgm)
+            sample.add_(w)
+        return sample
+
+
+class RandomAdditivePinkGN(object):
+    def __init__(self, snr_db=35, p=0.5):
+        self.snr_db = snr_db
+        self.min_snr_db = 30
+        self.p = p
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            s = torch.sqrt(torch.mean(sample ** 2))
+            n = sample.shape[-1]
+            w = torch.randn(n)
+            nn = n // 2 + 1
+            k = torch.arange(1, nn + 1, 1).float()
+            W = torch.fft.fft(w)
+            W = W[:nn] / k.sqrt()
+            W = torch.cat((W, W.flip(dims=(-1,))[1:-1].conj()), dim=-1)
+            w = torch.fft.ifft(W).real
+            w.add_(w.mean()).div_(w.std())
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            sgm = s * 10 ** (-snr_db / 20.)
+            sample.add_(w.mul_(sgm))
+        return sample
+
+
+class RandomAdditiveVioletGN(object):
+    def __init__(self, p=0.5, snr_db=35):
+        self.snr_db = snr_db
+        self.min_snr_db = 30
+        self.p = p
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            s = torch.sqrt(torch.mean(sample ** 2))
+            n = sample.shape[-1]
+            w = torch.randn(n)
+            nn = n // 2 + 1
+            k = torch.arange(1, nn + 1, 1).float()
+            W = torch.fft.fft(w)
+            W = W[:nn] * k
+            W = torch.cat((W, W.flip(dims=(-1,))[1:-1].conj()), dim=-1)
+            w = torch.fft.ifft(W).real
+            w.add_(w.mean()).div_(w.std())
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            sgm = s * 10 ** (-snr_db / 20.)
+            sample.add_(w.mul_(sgm))
+        return sample
+
+
+class RandomAdditiveRedGN(object):
+    def __init__(self, p=0.5, snr_db=35):
+        self.snr_db = snr_db
+        self.min_snr_db = 30
+        self.p = p
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            s = torch.sqrt(torch.mean(sample ** 2))
+            n = sample.shape[-1]
+            w = torch.randn(n)
+            nn = n // 2 + 1
+            k = torch.arange(1, nn + 1, 1).float()
+            W = torch.fft.fft(w)
+            W = W[:nn] / k
+            W = torch.cat((W, W.flip(dims=(-1,))[1:-1].conj()), dim=-1)
+            w = torch.fft.ifft(W).real
+            w.add_(w.mean()).div_(w.std())
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            sgm = s * 10 ** (-snr_db / 20.)
+            sample.add_(w.mul_(sgm))
+        return sample
+
+
+class RandomAdditiveBlueGN(object):
+    def __init__(self, p=0.5, snr_db=35):
+        self.snr_db = snr_db
+        self.min_snr_db = 30
+        self.p = p
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            s = torch.sqrt(torch.mean(sample ** 2))
+            n = sample.shape[-1]
+            w = torch.randn(n)
+            nn = n // 2 + 1
+            k = torch.arange(1, nn + 1, 1).float()
+            W = torch.fft.fft(w)
+            W = W[:nn] * k.sqrt()
+            W = torch.cat((W, W.flip(dims=(-1,))[1:-1].conj()), dim=-1)
+            w = torch.fft.ifft(W).real
+            w.add_(w.mean()).div_(w.std())
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            sgm = s * 10 ** (-snr_db / 20.)
+            sample.add_(w.mul_(sgm))
+        return sample
+
+
+class RandomFreqShift(object):
+    def __init__(self, sgm, fs, p=0.5):
+        super().__init__(fs=fs)
+        self.sgm = sgm
+        self.p = p
+        self.fft_params = {}
+        self.fft_params['win_len'] = [512, 1024, 2048]
+        self.fft_params['hop_len'] = [128, 256, 1024]
+        self.fft_params['n_fft'] = [512, 1024, 2048]
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            win_idx = random.randint(0, len(self.fft_params['win_len']) - 1)
+            df = self.fs / self.fft_params['win_len'][win_idx]
+            f_shift = torch.randn(1).mul_(self.sgm * df)
+            t = torch.arange(0, self.fft_params['win_len'][win_idx], 1).float()
+            w = torch.real(torch.exp(-1j * 2 * np.pi * t * f_shift))
+            X = torch.stft(sample,
+                           win_length=self.fft_params['win_len'][win_idx],
+                           hop_length=self.fft_params['hop_len'][win_idx],
+                           n_fft=self.fft_params['n_fft'][win_idx],
+                           window=w,
+                           return_complex=True)
+            sample = torch.istft(X,
+                                 win_length=self.fft_params['win_len'][win_idx],
+                                 hop_length=self.fft_params['hop_len'][win_idx],
+                                 n_fft=self.fft_params['n_fft'][win_idx])
+
+        return sample
+
+
+class RandomAddSine(object):
+    def __init__(self, fs, snr_db=35, max_freq=50, p=0.5):
+        self.snr_db = snr_db
+        self.max_freq = max_freq
+        self.min_snr_db = 30
+        self.p = p
+        self.fs = fs
+
+    def __call__(self, sample):
+        n = torch.arange(0, sample.shape[-1], 1)
+        f = self.max_freq * torch.rand(1) + 3 * torch.randn(1)
+        if random.random() < self.p:
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            t = n * 1. / self.fs
+            s = (sample ** 2).mean().sqrt()
+            sgm = s * np.sqrt(2) * 10 ** (-snr_db / 20.)
+            b = sgm * torch.sin(2 * np.pi * f * t + torch.rand(1) * np.pi)
+            sample.add_(b)
+
+        return sample
+
+
+class RandomAmpSegment(object):
+    def __init__(self, low, high, max_len=None, p=0.5):
+        self.low = low
+        self.high = high
+        self.max_len = max_len
+        self.p = p
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            if self.max_len is None:
+                self.max_len = sample.shape[-1] // 10
+            idx = random.randint(0, self.max_len)
+            amp = torch.FloatTensor(1).uniform_(self.low, self.high)
+            sample[idx: idx + self.max_len].mul_(amp)
+        return sample
+
+
+class RandomPhNoise(object):
+    def __init__(self, fs, sgm=0.01, p=0.5):
+        super().__init__(fs=fs)
+        self.sgm = sgm
+        self.p = p
+        self.fft_params = {}
+        self.fft_params['win_len'] = [512, 1024, 2048]
+        self.fft_params['hop_len'] = [128, 256, 1024]
+        self.fft_params['n_fft'] = [512, 1024, 2048]
+
+    def __call__(self, sample):
+        if random.random() < self.p:
+            win_idx = random.randint(0, len(self.fft_params['win_len']) - 1)
+            sgm_noise = self.sgm + 0.01 * torch.rand(1)
+            X = torch.stft(sample,
+                           win_length=self.fft_params['win_len'][win_idx],
+                           hop_length=self.fft_params['hop_len'][win_idx],
+                           n_fft=self.fft_params['n_fft'][win_idx],
+                           return_complex=True)
+            w = sgm_noise * torch.rand_like(X)
+            phn = torch.exp(1j * w)
+            X.mul_(phn)
+            sample = torch.istft(X,
+                                 win_length=self.fft_params['win_len'][win_idx],
+                                 hop_length=self.fft_params['hop_len'][win_idx],
+                                 n_fft=self.fft_params['n_fft'][win_idx])
+        return sample
 
