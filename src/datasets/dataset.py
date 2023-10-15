@@ -24,6 +24,10 @@ import torch
 
 __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 
+class_to_idx = {
+    'O': 0,
+    'X': 1
+}
 def tdms_preprocess(tdms_path):
     tdms_file = TdmsFile(tdms_path)
     L = list(name for name in tdms_file['RawData'].channels())
@@ -45,7 +49,7 @@ def tdms_preprocess(tdms_path):
     return y, Beampower
 class PreProcess:
     def __init__(self, tdms_file):
-        print(tdms_file['RawData'].channels())
+        print(tdms_file['RawData'], tdms_file['RawData'].channels())
         L = list(name for name in tdms_file['RawData'].channels())
         L_str = list(map(str, L))
         data_lst = []
@@ -174,7 +178,7 @@ class YoungDataSet(Dataset):
                     batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
                                                data['title_batcam2'])
 
-                    label = (data['Horn'], data['Position'])
+                    label = (class_to_idx(data['Horn']),int(data['Position']))
                     self.data_list.append((s206_path, batcam_path, label, data))
         self.len = len(self.data_list)
 

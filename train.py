@@ -44,7 +44,7 @@ if __name__ == '__main__':
         for i, (stft, mfcc, sc, horn, position) in enumerate(train_loader):
             print(stft, mfcc, sc, horn, position)
             optimizer.zero_grad()
-            train_loss = torch.clamp(1 - model(images) * labels, min=0)
+            train_loss = torch.clamp(1 - model(mfcc, sc) * labels, min=0)
             train_loss.backward()
             optimizer.step()
 

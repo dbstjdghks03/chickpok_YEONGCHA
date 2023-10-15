@@ -11,9 +11,7 @@ class PCAModel(nn.Module):
         self.PCA = PCA(n_components=n_components)
         self.SVM = nn.Linear(2 * n_components, 1)
 
-    def forward(self, x):
-        mfcc = x.mfcc
-        sc = x.sc
+    def forward(self, mfcc, sc):
         res = self.Resnet(mfcc)
         res_reduced = self.PCA(res)
         sc_reduced = self.PCA(sc)
