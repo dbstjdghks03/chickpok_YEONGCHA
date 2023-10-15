@@ -192,7 +192,7 @@ class YoungDataSet(Dataset):
         # batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
         print(self.root + s206_path, s206_audio)
         s206 = PreProcess(s206_audio)
-
+        print(s206.get_stft().shape, s206.get_mfcc().shape, s206.get_sc().shape, horn)
         return s206.get_stft(), s206.get_mfcc(), s206.get_sc(), horn, position
         # if self.transform:
         #     self.data[index] = AudioAugs(self.transform, sampling_rate, p=0.5)
