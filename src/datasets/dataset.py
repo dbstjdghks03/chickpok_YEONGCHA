@@ -22,13 +22,17 @@ import torchaudio
 import torch
 import librosa
 
-__all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
+#__all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 
 
 def get_numpy_from_nonfixed_2d_array(input, fixed_length=4000000, padding_value=0):
     output = np.pad(input, (0, fixed_length), 'constant', constant_values=padding_value)[:fixed_length]
     return output
 
+train_to_idx = {
+    '수소열차': 0,
+    '차세대전동차': 1
+}
 
 class_to_idx = {
     'Yes': 0,
@@ -154,12 +158,21 @@ class YoungDataSet(Dataset):
                     s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206', data['title_s206'])
                     batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
                                                data['title_batcam2'])
+                    train = train_to_idx[data['Train']]
                     horn = class_to_idx[data['Horn']]
                     if horn == "Yes":
                         position = int(data['Position'])
+                        if train == 0:
+                            cluster = 'CL_HY'
+                        else:
+                            cluster = 'CL_NY'
                     else:
                         position = ''
-                    self.data_list.append((s206_path, batcam_path, horn, position, data))
+                        if train == 0:
+                            cluster = 'CL_HN'
+                        else:
+                            cluster = 'CL_NN'
+                    self.data_list.append([s206_path, batcam_path, train, horn, position, cluster, data])
         self.len = len(self.data_list)
 
     def __getitem__(self, idx):
