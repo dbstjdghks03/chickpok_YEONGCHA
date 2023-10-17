@@ -134,7 +134,7 @@ class PreProcess:
         return self.getrgb(log_spectrogram, log_spectrogram.min(), log_spectrogram.max())
 
     def get_sc(self):
-        cent = librosa.feature.spectral_centroid(y=self.y, sr=22050)
+        cent = librosa.feature.spectral_centroid(y=self.y, sr=22050).reshape(-1, 1)
         return cent
 
 
