@@ -43,7 +43,7 @@ if __name__ == '__main__':
         print(f"{epoch}th epoch starting.")
         running_test_loss = 0
         for i, (stft, mfcc, sc, horn, position) in enumerate(train_loader):
-            stft, mfcc, sc, horn = stft.to(device), mfcc.to(device), sc.to(device), horn.to(device)
+            stft, mfcc, sc, horn = stft.to(device).float(), mfcc.to(device).float(), sc.to(device).float(), horn.to(device)
             optimizer.zero_grad()
             train_loss = torch.clamp(1 - model(mfcc, sc) * horn, min=0)
             train_loss.backward()
