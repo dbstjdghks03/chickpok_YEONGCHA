@@ -171,7 +171,7 @@ class YoungDataSet(Dataset):
         s206 = PreProcess(s206_audio)
         print(s206.get_stft().shape, s206.get_mfcc().shape, s206.get_sc().shape, horn)
 
-        return s206.get_stft(), s206.get_mfcc(), s206.get_sc(), horn, position
+        return s206.get_stft().permute(2, 1, 0), s206.get_mfcc().permute(2, 1, 0), s206.get_sc().permute(2, 1, 0), horn, position
         # if self.transform:
         #     self.data[index] = AudioAugs(self.transform, sampling_rate, p=0.5)
 
