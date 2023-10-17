@@ -12,11 +12,10 @@ class PCAModel(nn.Module):
         self.SVM = nn.Linear(2 * n_components, 1)
 
     def forward(self, mfcc, sc):
-        res = self.Resnet(mfcc).cpu().numpy()
-        sc = sc.cpu().numpy()
+        res = self.Resnet(mfcc)
 
-        res_reduced = self.PCA.fit_transform(res).to(device)
-        sc_reduced = self.PCA.fit_transform(sc).to(device)
+        res_reduced = self.PCA(res)
+        sc_reduced = self.PCA(sc)
 
         print(res_reduced.shape, sc_reduced.shape)
 
@@ -39,14 +38,29 @@ class Resnet(nn.Module):
         x = self.model(x)
         return x.view(x.size(0), -1)
 
-
 class PCA(nn.Module):
     def __init__(self, n_components):
         super(PCA, self).__init__()
         self.n_components = n_components
-        self.Linear = nn.Linear()
+
     def forward(self, x):
+        mean = torch.mean(x, dim=0)
+        data = x - mean
 
+        # 2. Calculate the covariance matrix
+        cov_matrix = torch.mm(x, x.t()) / (x.shape[0] - 1)
 
-        return
+        # 3. Get eigenvalues and eigenvectors
+        eigenvalues, eigenvectors = torch.linalg.eig(cov_matrix)
 
+        # Sort eigenvalues and corresponding eigenvectors
+        sorted_indices = torch.argsort(eigenvalues[:, 0], descending=True)
+        eigenvectors = eigenvectors[:, sorted_indices]
+
+        # 4. Select the top k eigenvectors
+        selected_eigenvectors = eigenvectors[:, :self.n_components]
+
+        # 5. Transform the data
+        transformed_data = torch.mm(data, selected_eigenvectors)
+
+        return transformed_data
