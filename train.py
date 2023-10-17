@@ -10,6 +10,7 @@ parser = argparse.ArgumentParser()
 # 3. parser.add_argument로 받아들일 인수를 추가해나간다.
 parser.add_argument('--epochs', type=int, default=128)
 parser.add_argument('--root', type=str)
+parser.add_argument('--batch', type=int, default=2)
 
 args = parser.parse_args()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -27,8 +28,8 @@ print(train_len, val_len)
 
 train_dataset, val_dataset = random_split(dataset, [train_len, val_len])
 
-train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=4, shuffle=False)
+train_loader = DataLoader(train_dataset, batch_size=args.batch, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=args.batch, shuffle=False)
 
 if __name__ == '__main__':
     model = PCAModel(n_components).to(device)
