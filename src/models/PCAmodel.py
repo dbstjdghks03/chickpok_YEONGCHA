@@ -13,8 +13,8 @@ class PCAModel(nn.Module):
 
     def forward(self, mfcc, sc):
         res = self.Resnet(mfcc)
-        res_reduced = self.PCA.transform(res)
-        sc_reduced = self.PCA.transform(sc)
+        res_reduced = self.PCA.fit(res)
+        sc_reduced = self.PCA.fit(sc)
 
         combined_feat = torch.concat((res_reduced, sc_reduced), -1)
         out = self.SVM(combined_feat)
