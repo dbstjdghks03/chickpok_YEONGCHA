@@ -158,7 +158,7 @@ class YoungDataSet(Dataset):
                     if horn == "Yes":
                         position = int(data['Position'])
                     else:
-                        position = ''
+                        position = -1
                     self.data_list.append((s206_path, batcam_path, horn, position, data))
         self.len = len(self.data_list)
 
@@ -171,7 +171,7 @@ class YoungDataSet(Dataset):
         s206 = PreProcess(s206_audio)
         print(s206.get_stft().shape, s206.get_mfcc().shape, s206.get_sc().shape, horn)
 
-        return s206.get_stft(), s206.get_mfcc(), s206.get_sc(), horn, position
+        return torch.FloatTensor(s206.get_stft()), torch.FloatTensor(s206.get_mfcc()), torch.FloatTensor(s206.get_sc()), torch.FloatTensor(horn), torch.FloatTensor(position)
         # if self.transform:
         #     self.data[index] = AudioAugs(self.transform, sampling_rate, p=0.5)
 
