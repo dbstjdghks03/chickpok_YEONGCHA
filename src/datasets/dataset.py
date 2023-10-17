@@ -88,7 +88,7 @@ class PreProcess:
             g = 0  # 여기서는 녹색 채널을 0으로 설정
             b = 255 - r  # 파란색 채널을 반전
             flat[i] = [r, g, b]
-        arr = np.array(flat).reshape(amplitude.shape[0], amplitude.shape[1], 3)
+        arr = np.array(flat).reshape(3, amplitude.shape[0], amplitude.shape[1])
 
         return arr
 
@@ -171,7 +171,7 @@ class YoungDataSet(Dataset):
         s206 = PreProcess(s206_audio)
         print(s206.get_stft().shape, s206.get_mfcc().shape, s206.get_sc().shape, horn)
 
-        return s206.get_stft().permute(2, 1, 0), s206.get_mfcc().permute(2, 1, 0), s206.get_sc().permute(2, 1, 0), horn, position
+        return s206.get_stft(), s206.get_mfcc(), s206.get_sc(), horn, position
         # if self.transform:
         #     self.data[index] = AudioAugs(self.transform, sampling_rate, p=0.5)
 
