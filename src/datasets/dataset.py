@@ -171,7 +171,7 @@ class YoungDataSet(Dataset):
         s206 = PreProcess(s206_audio)
         print(s206.get_stft().shape, s206.get_mfcc().shape, s206.get_sc().shape, horn)
 
-        return torch.FloatTensor(s206.get_stft()), torch.FloatTensor(s206.get_mfcc()), torch.FloatTensor(s206.get_sc()), horn, torch.FloatTensor(position)
+        return torch.tensor(s206.get_stft()), torch.tensor(s206.get_mfcc()), torch.tensor(s206.get_sc()), horn, torch.tensor(position)
         # if self.transform:
         #     self.data[index] = AudioAugs(self.transform, sampling_rate, p=0.5)
 
