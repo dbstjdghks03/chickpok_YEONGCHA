@@ -13,8 +13,8 @@ class PCAModel(nn.Module):
 
     def forward(self, mfcc, sc):
         res = self.Resnet(mfcc)
-        res_reduced = self.PCA.fit(res)
-        sc_reduced = self.PCA.fit(sc)
+        res_reduced = self.PCA(res)
+        sc_reduced = self.PCA(sc)
 
         combined_feat = torch.concat((res_reduced, sc_reduced), -1)
         out = self.SVM(combined_feat)
@@ -34,3 +34,17 @@ class Resnet(nn.Module):
     def forward(self, x):
         x = self.model(x)
         return x.view(x.size(0), -1)
+
+
+class PCA(nn.Module):
+    def __init__(self, n_components):
+        super(PCA, self).__init__()
+        self.n_components = n_components
+
+    def forward(self, x):
+        x = x - x.mean(dim=0)
+        U, S, V = torch.svd(x)
+        PC = V[:, :self.n_components]
+
+        return x @ PC
+
