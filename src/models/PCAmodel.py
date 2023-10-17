@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 from sklearn.decomposition import PCA
-
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class PCAModel(nn.Module):
     def __init__(self, n_components):
@@ -12,9 +12,11 @@ class PCAModel(nn.Module):
         self.SVM = nn.Linear(2 * n_components, 1)
 
     def forward(self, mfcc, sc):
-        res = self.Resnet(mfcc)
-        res_reduced = self.PCA(res)
-        sc_reduced = self.PCA(sc)
+        res = self.Resnet(mfcc).cpu().numpy()
+        sc = sc.cpu().numpy()
+
+        res_reduced = self.PCA.fit_transform(res).to(device)
+        sc_reduced = self.PCA.fit_transform(sc).to(device)
 
         print(res_reduced.shape, sc_reduced.shape)
 
@@ -42,11 +44,9 @@ class PCA(nn.Module):
     def __init__(self, n_components):
         super(PCA, self).__init__()
         self.n_components = n_components
-
+        self.Linear = nn.Linear()
     def forward(self, x):
-        x = x - x.mean(dim=0)
-        U, S, V = torch.svd(x)
-        PC = V[:, :self.n_components]
 
-        return x @ PC
+
+        return
 
