@@ -84,5 +84,5 @@ for dirpath, dirnames, files in os.walk(root + '/train_json'):
                 position = -1
 
             s206 = tdms_preprocess(s206_path)
-            np.save(s206_path.split('.')[:-1], s206)
+            np.save(s206_path.split('.')[0], s206)
             # batcam = tdms_preprocess(batcam_path)
