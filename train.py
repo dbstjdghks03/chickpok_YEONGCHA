@@ -19,7 +19,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 root = args.root
 epochs = args.epochs
 batch = args.batch
-n_components = 10
+n_components = 12
 print(root)
 dataset = YoungDataSet(root=root, is_npy=True)
 
@@ -31,30 +31,34 @@ data_list = dataset.data_list
 
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 print([item[5] for item in data_list])
-for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[5] for item in data_list])):
-    train_set = torch.utils.data.Subset(dataset, train_indices)
-    test_set = torch.utils.data.Subset(dataset, test_indices)
 
-    train_loader = DataLoader(train_set, batch_size=batch, shuffle=True)
-    test_loader = DataLoader(test_set, batch_size=batch, shuffle=False)
+
+
 
 if __name__ == '__main__':
     model = PCAModel(n_components).to(device)
     # optimizer로는 Adam 사용
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
-    train_losses = []
-    test_losses = []
-    for epoch in range(epochs):
-        model.train()
-        print(f"{epoch}th epoch starting.")
-        running_test_loss = 0
-        for i, (stft, mfcc, sc, horn, position) in enumerate(train_loader):
-            stft, mfcc, sc, horn = stft.to(device).float(), mfcc.to(device).float(), sc.to(device).float(), horn.to(device)
-            optimizer.zero_grad()
-            train_loss = torch.clamp(1 - model(mfcc, sc) * horn, min=0)
-            train_loss.backward()
-            optimizer.step()
+    for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[5] for item in data_list])):
+        train_set = torch.utils.data.Subset(dataset, train_indices)
+        test_set = torch.utils.data.Subset(dataset, test_indices)
+
+        train_loader = DataLoader(train_set, batch_size=batch, shuffle=True)
+        test_loader = DataLoader(test_set, batch_size=batch, shuffle=False)
+
+        train_losses = []
+        test_losses = []
+        for epoch in range(epochs):
+            model.train()
+            print(f"{epoch}th epoch starting.")
+            running_test_loss = 0
+            for i, (stft, mfcc, sc, horn, position) in enumerate(train_loader):
+                stft, mfcc, sc, horn = stft.to(device).float(), mfcc.to(device).float(), sc.to(device).float(), horn.to(device)
+                optimizer.zero_grad()
+                train_loss = torch.clamp(1 - model(mfcc, sc) * horn, min=0)
+                train_loss.backward()
+                optimizer.step()
 
     #     model.eval()
     #     running_train_loss = 0.0
