@@ -60,6 +60,6 @@ class PCA(nn.Module):
         selected_eigenvectors = eigenvectors[:, :self.n_components]
 
         # 5. Transform the data
-        transformed_data = torch.mm(data, selected_eigenvectors)
+        transformed_data = torch.mm(selected_eigenvectors, data)
 
         return transformed_data
