@@ -18,9 +18,10 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 root = args.root
 epochs = args.epochs
-n_components = 20
+batch = args.batch
+n_components = 10
 print(root)
-dataset = YoungDataSet(root=root, is_npy=true)
+dataset = YoungDataSet(root=root, is_npy=True)
 
 # train_len = int(0.8 * len(dataset))
 # val_len = len(dataset) - train_len
@@ -34,9 +35,8 @@ for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[
     train_set = torch.utils.data.Subset(dataset, train_indices)
     test_set = torch.utils.data.Subset(dataset, test_indices)
 
-    batch_size = 16
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_set, batch_size=batch, shuffle=True)
+    test_loader = DataLoader(test_set, batch_size=batch, shuffle=False)
 
 if __name__ == '__main__':
     model = PCAModel(n_components).to(device)
