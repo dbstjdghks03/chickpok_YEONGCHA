@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
-from sklearn.decomposition import PCA
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class PCAModel(nn.Module):
