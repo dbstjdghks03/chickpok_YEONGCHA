@@ -12,7 +12,7 @@ class PCAModel(nn.Module):
 
     def forward(self, mfcc, sc):
         res = self.Resnet(mfcc)
-
+        sc = sc.squeeze()
         res_reduced = self.PCA(res)
         sc_reduced = self.PCA(sc)
 
@@ -60,6 +60,6 @@ class PCA(nn.Module):
         selected_eigenvectors = eigenvectors[:, :self.n_components]
 
         # 5. Transform the data
-        transformed_data = torch.mm(selected_eigenvectors, data)
+        transformed_data = torch.mm(selected_eigenvectors.real, data)
 
         return transformed_data
