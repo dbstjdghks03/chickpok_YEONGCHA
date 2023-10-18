@@ -128,7 +128,7 @@ class PreProcess:
         return self.getrgb(log_spectrogram, log_spectrogram.min(), log_spectrogram.max())
 
     def get_sc(self):
-        cent = librosa.feature.spectral_centroid(y=self.y, sr=22050).reshape(-1, 1)
+        # cent = librosa.feature.spectral_centroid(y=self.y, sr=22050).reshape(-1, 1)
         y = torch.tensor(self.y)
         cent = torchaudio.functional.spectral_centroid(waveform=y, sample_rate=22050)
 
