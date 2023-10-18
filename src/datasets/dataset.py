@@ -130,8 +130,10 @@ class PreProcess:
     def get_sc(self):
         # cent = librosa.feature.spectral_centroid(y=self.y, sr=22050).reshape(-1, 1)
         window = torch.hann_window
+
+        y = torch.tensor(self.y)
         # Compute the STFT
-        y_stft = torch.stft(self.y, n_fft=640, hop_length=256, window=window(640, periodic=True),
+        y_stft = torch.stft(y, n_fft=640, hop_length=256, window=window(640, periodic=True),
                             return_complex=True)
 
         # Compute magnitude spectrum
