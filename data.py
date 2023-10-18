@@ -67,7 +67,7 @@ def tdms_preprocess(tdms_path):
     return y
 
 
-skip_list =["/content/drive/MyDrive/data set/train_json/221102_H", "/content/drive/MyDrive/data set/train_json/221103_H", "/content/drive/MyDrive/data set/train_json/221104_H", "/content/drive/MyDrive/data set/train_json/221107_N"]
+skip_list =["/content/drive/MyDrive/data set/train_json/221102_H", "/content/drive/MyDrive/data set/train_json/221107_N", "/content/drive/MyDrive/data set/train_json/221110_N"]
 for dirpath, dirnames, files in os.walk(root + '/train_json'):
     print(f'Found directory: {dirpath}')
     if dirpath in skip_list:
