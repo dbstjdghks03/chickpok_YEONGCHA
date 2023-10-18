@@ -1,10 +1,11 @@
 import torch
 import argparse
 from src.datasets.dataset import YoungDataSet
-import os
 from torch.utils.data.dataset import random_split
 from torch.utils.data import DataLoader
 from src.models.PCAmodel import PCAModel
+from sklearn.model_selection import StratifiedKFold
+
 parser = argparse.ArgumentParser()
 
 # 3. parser.add_argument로 받아들일 인수를 추가해나간다.
@@ -17,19 +18,25 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 root = args.root
 epochs = args.epochs
-n_components = 256
+n_components = 20
 print(root)
 dataset = YoungDataSet(root=root)
 
-train_len = int(0.8 * len(dataset))
-val_len = len(dataset) - train_len
-print(train_len, val_len)
+# train_len = int(0.8 * len(dataset))
+# val_len = len(dataset) - train_len
+# print(train_len, val_len)
 
+data_list = dataset.data_list
 
-train_dataset, val_dataset = random_split(dataset, [train_len, val_len])
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-train_loader = DataLoader(train_dataset, batch_size=args.batch, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=args.batch, shuffle=False)
+for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[5] for item in data_list])):
+    train_set = torch.utils.data.Subset(dataset, train_indices)
+    test_set = torch.utils.data.Subset(dataset, test_indices)
+
+    batch_size = 16
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False)
 
 if __name__ == '__main__':
     model = PCAModel(n_components).to(device)

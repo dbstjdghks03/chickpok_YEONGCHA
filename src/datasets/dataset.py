@@ -1,20 +1,7 @@
-import torch
 from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
-# import pandas as pd
 import os
-# import numpy as np
-import re
-import numpy as np
-import pandas as pd
-# import librosa
 from sklearn import preprocessing
-# import matplotlib.pyplot as plt
-# from PIL import Image
-# import matplotlib.cm as cm
 import json
-# from src.data.preprocessing import PreProcess
-# # from src.data.preprocessing import AudioAugs
 import re
 from nptdms import TdmsFile
 import numpy as np
@@ -59,22 +46,23 @@ def tdms_preprocess(tdms_path):
 
 class PreProcess:
     def __init__(self, tdms_file):
-        print(tdms_file['RawData'], tdms_file['RawData'].channels())
-        L = list(name for name in tdms_file['RawData'].channels())
-        L_str = list(map(str, L))
-        data_lst = []
-        peak_lst = []
-        for string in L_str:
-            num = re.sub(r'[^0-9]', '', string)
-            if num:
-                selected_data = tdms_file['RawData'][f'Channel{num}']
-                data_lst.append(selected_data.data)
-                peak_lst.append(max(abs(selected_data.data)))
-        data_sum = sum(data_lst)
-        peakAmp = max(abs(data_sum))
-        maxPeak = max(peak_lst)
-
-        self.y = get_numpy_from_nonfixed_2d_array((data_sum / peakAmp) * maxPeak)
+        # print(tdms_file['RawData'], tdms_file['RawData'].channels())
+        # L = list(name for name in tdms_file['RawData'].channels())
+        # L_str = list(map(str, L))
+        # data_lst = []
+        # peak_lst = []
+        # for string in L_str:
+        #     num = re.sub(r'[^0-9]', '', string)
+        #     if num:
+        #         selected_data = tdms_file['RawData'][f'Channel{num}']
+        #         data_lst.append(selected_data.data)
+        #         peak_lst.append(max(abs(selected_data.data)))
+        # data_sum = sum(data_lst)
+        # peakAmp = max(abs(data_sum))
+        # maxPeak = max(peak_lst)
+        #
+        # self.y = get_numpy_from_nonfixed_2d_array((data_sum / peakAmp) * maxPeak)
+        self.y = tdms_file
 
     def getrgb(self, amplitude, min_amplitude=0, max_amplitude=10):
         # 진폭값을 [0, 1] 범위로 정규화
@@ -93,24 +81,8 @@ class PreProcess:
         return arr
 
     def get_mfcc(self):
-        print(self.y)
         mfcc = librosa.feature.mfcc(y=self.y, sr=22050, n_mfcc=10, n_fft=640, hop_length=256)
         mfcc = preprocessing.scale(mfcc, axis=1)
-
-
-
-        '''pad2d = lambda a, i: a[:, 0:i] if a.shape[1] > i else np.hstack((a, np.zeros((a.shape[0], i-a.shape[1]))))
-        padded_mfcc = pad2d(mfcc, 6700)'''
-
-        '''# 색상 매핑 (RGB)
-        cmap = cm.get_cmap('plasma')  # Here 'viridis' is the color map. You can use others like 'plasma', 'inferno', etc.
-        rgb_image = cmap(padded_mfcc)  # This will be a 3D array with dimensions: [height, width, 3 (for RGB channels)]
-        print(rgb_image.shape)
-        plt.figure(figsize=(10, 5))
-        plt.imshow(rgb_image)
-        plt.axis('off')  # 축을 숨기려면 이 줄을 추가
-        plt.savefig('mfcc.jpg')
-        plt.show()'''
 
         return self.getrgb(mfcc, mfcc.min(), mfcc.max())
 
@@ -139,7 +111,7 @@ class PreProcess:
 
 
 class YoungDataSet(Dataset):
-    def __init__(self, root, transform=None):
+    def __init__(self, root, is_npy, transform=None):
         self.transform = transform
         self.data_list = []
         self.root = root
@@ -152,6 +124,9 @@ class YoungDataSet(Dataset):
                         data = json.load(f)
                     folder_name = dirpath.split("/")[-1]
                     s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206', data['title_s206'])
+                    if is_npy:
+                        s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206', data['title_s206'].split(".")[0]+".npy")
+
                     batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
                                                data['title_batcam2'])
                     horn = class_to_idx[data['Horn']]
@@ -164,8 +139,8 @@ class YoungDataSet(Dataset):
 
     def __getitem__(self, idx):
         s206_path, batcam_path, horn, position, data = self.data_list[idx]
-
-        s206_audio = TdmsFile(self.root + s206_path)
+        s206_audio = np.load(s206_path)
+        # s206_audio = TdmsFile(self.root + s206_path)
         # batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
         print(self.root + s206_path, s206_audio)
         s206 = PreProcess(s206_audio)
