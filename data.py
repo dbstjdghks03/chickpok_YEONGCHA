@@ -4,7 +4,7 @@ from nptdms import TdmsFile
 import re
 import numpy as np
 
-root = ""
+root = "/content/drive/MyDrive/data set"
 
 class_to_idx = {
     'Yes': 0,
