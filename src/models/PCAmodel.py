@@ -53,7 +53,7 @@ class PCA(nn.Module):
         eigenvalues, eigenvectors = torch.linalg.eig(cov_matrix)
         print(eigenvalues, eigenvectors)
         # Sort eigenvalues and corresponding eigenvectors
-        sorted_indices = torch.argsort(eigenvalues, descending=True)
+        sorted_indices = torch.argsort(eigenvalues.real, descending=True)
         eigenvectors = eigenvectors[:, sorted_indices]
 
         # 4. Select the top k eigenvectors
