@@ -20,7 +20,7 @@ root = args.root
 epochs = args.epochs
 n_components = 20
 print(root)
-dataset = YoungDataSet(root=root)
+dataset = YoungDataSet(root=root, is_npy=true)
 
 # train_len = int(0.8 * len(dataset))
 # val_len = len(dataset) - train_len
