@@ -19,7 +19,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 root = args.root
 epochs = args.epochs
 batch = args.batch
-n_components = 12
+n_components = 30
 print(root)
 dataset = YoungDataSet(root=root, is_npy=True)
 
