@@ -130,7 +130,7 @@ class PreProcess:
     def get_sc(self):
         # cent = librosa.feature.spectral_centroid(y=self.y, sr=22050).reshape(-1, 1)
         y = torch.tensor(self.y)
-        cent = torchaudio.functional.spectral_centroid(waveform=y, sample_rate=22050)
+        cent = torchaudio.functional.spectral_centroid(waveform=y, sample_rate=22050, pad=0, window=torch.hann_window, n_fft=640, win_length=640, hop_length=256)
 
         return cent.reshape(-1, 1)
 
