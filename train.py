@@ -30,7 +30,7 @@ dataset = YoungDataSet(root=root, is_npy=True)
 data_list = dataset.data_list
 
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-print(data_list)
+print([item[5] for item in data_list])
 for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[5] for item in data_list])):
     train_set = torch.utils.data.Subset(dataset, train_indices)
     test_set = torch.utils.data.Subset(dataset, test_indices)
