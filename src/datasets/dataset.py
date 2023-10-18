@@ -134,7 +134,7 @@ class PreProcess:
         sample_rate = 22050
 
         # Compute the Spectrogram
-        specgram = torchaudio.transforms.Spectrogram(n_fft=2048, win_length=None, hop_length=512, power=None)(y)
+        specgram = torchaudio.transforms.Spectrogram(n_fft=640, win_length=640, hop_length=256, power=None )(y)
 
         # Compute Spectral Centroid
         frequencies = torch.linspace(0, sample_rate / 2, specgram.shape[1])
