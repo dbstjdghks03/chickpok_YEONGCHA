@@ -140,9 +140,9 @@ class PreProcess:
         frequencies = torch.linspace(0, sample_rate / 2, specgram.shape[1])
         centroid = torch.sum(frequencies * specgram) / torch.sum(specgram)
 
+        print(centroid)
         # Reshape the tensor
         cent = centroid.reshape(-1, 1)
-
         return cent
 
 
