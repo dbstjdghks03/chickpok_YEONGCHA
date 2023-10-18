@@ -128,23 +128,11 @@ class PreProcess:
         return self.getrgb(log_spectrogram, log_spectrogram.min(), log_spectrogram.max())
 
     def get_sc(self):
-        # cent = librosa.feature.spectral_centroid(y=self.y, sr=22050).reshape(-1, 1)
-        window = torch.hann_window
-
+        cent = librosa.feature.spectral_centroid(y=self.y, sr=22050).reshape(-1, 1)
         y = torch.tensor(self.y)
-        # Compute the STFT
-        y_stft = torch.stft(y, n_fft=640, hop_length=256, window=window(640, periodic=True),
-                            return_complex=True)
+        cent = torchaudio.functional.spectral_centroid(waveform=y, sample_rate=22050)
 
-        # Compute magnitude spectrum
-        magnitude = torch.abs(y_stft)
-
-        # Compute the spectral centroid
-        freqs = torch.linspace(0, 22050 / 2, 640 // 2 + 1, dtype=torch.float32)
-        centroid = torch.sum(freqs * magnitude, dim=1) / (
-                    torch.sum(magnitude, dim=1) + 1e-10)  # Adding a small constant to avoid division by zero
-
-        return centroid.reshape(-1, 1)
+        return cent.reshape(-1, 1)
 
 
 class YoungDataSet(Dataset):
