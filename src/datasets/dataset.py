@@ -17,6 +17,10 @@ def get_numpy_from_nonfixed_2d_array(input, fixed_length=4000000, padding_value=
     return output
 
 
+train_to_idx = {
+    '수소열차': 0,
+    '차세대전동차': 1
+}
 class_to_idx = {
     'Yes': 0,
     'No': 1
@@ -125,20 +129,31 @@ class YoungDataSet(Dataset):
                     folder_name = dirpath.split("/")[-1]
                     s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206', data['title_s206'])
                     if is_npy:
-                        s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206', data['title_s206'].split(".")[0]+".npy")
+                        s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206',
+                                                 data['title_s206'].split(".")[0] + ".npy")
 
                     batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
                                                data['title_batcam2'])
+                    train = train_to_idx[data['Train']]
                     horn = class_to_idx[data['Horn']]
-                    if horn == "Yes":
+
+                    if horn == 0:
                         position = int(data['Position'])
+                        if train == 0:
+                            cluster = 'CL_HY'
+                        else:
+                            cluster = 'CL_NY'
                     else:
                         position = -1
-                    self.data_list.append((s206_path, batcam_path, horn, position, data))
-        self.len = len(self.data_list)
+                        if train == 0:
+                            cluster = 'CL_HN'
+                        else:
+                            cluster = 'CL_NN'
+
+                    self.data_list.append([s206_path, batcam_path, train, horn, position, cluster, data])
 
     def __getitem__(self, idx):
-        s206_path, batcam_path, horn, position, data = self.data_list[idx]
+        s206_path, batcam_path, _, horn, position, _, _ = self.data_list[idx]
         s206_audio = np.load(s206_path)
         # s206_audio = TdmsFile(self.root + s206_path)
         # batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
@@ -146,7 +161,8 @@ class YoungDataSet(Dataset):
         s206 = PreProcess(s206_audio)
         print(s206.get_stft().shape, s206.get_mfcc().shape, s206.get_sc().shape, horn)
 
-        return torch.tensor(s206.get_stft()), torch.tensor(s206.get_mfcc()), torch.tensor(s206.get_sc()), horn, torch.tensor(position)
+        return torch.tensor(s206.get_stft()), torch.tensor(s206.get_mfcc()), torch.tensor(
+            s206.get_sc()), horn, torch.tensor(position)
         # if self.transform:
         #     self.data[index] = AudioAugs(self.transform, sampling_rate, p=0.5)
 
