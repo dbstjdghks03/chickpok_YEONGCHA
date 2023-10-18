@@ -74,9 +74,9 @@ for dirpath, dirnames, files in os.walk(root + '/train_json'):
             with open(dirpath + '/' + file_name, 'r') as f:
                 data = json.load(f)
             folder_name = dirpath.split("/")[-1]
-            s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206', data['title_s206'])
-            batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
-                                       data['title_batcam2'])
+            s206_path = os.path.join(root+'/train_tdms/'+folder_name+'/S206/'+data['title_s206'])
+            # batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
+            #                            data['title_batcam2'])
             horn = class_to_idx[data['Horn']]
             if horn == "Yes":
                 position = int(data['Position'])
