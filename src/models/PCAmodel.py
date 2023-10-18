@@ -47,7 +47,7 @@ class PCA(nn.Module):
         data = x - mean
 
         # 2. Calculate the covariance matrix
-        cov_matrix = torch.mm(x, x.t()) / (x.shape[0] - 1)
+        cov_matrix = torch.mm(x.t(), x) / x.shape[0]
 
         # 3. Get eigenvalues and eigenvectors
         eigenvalues, eigenvectors = torch.linalg.eig(cov_matrix)
