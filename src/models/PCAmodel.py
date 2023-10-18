@@ -51,7 +51,7 @@ class PCA(nn.Module):
 
         # 3. Get eigenvalues and eigenvectors
         eigenvalues, eigenvectors = torch.linalg.eig(cov_matrix)
-
+        print(eigenvalues, eigenvectors)
         # Sort eigenvalues and corresponding eigenvectors
         sorted_indices = torch.argsort(eigenvalues[:, 0], descending=True)
         eigenvectors = eigenvectors[:, sorted_indices]
