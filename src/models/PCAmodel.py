@@ -46,20 +46,14 @@ class PCA(nn.Module):
         mean = torch.mean(x, dim=0)
         data = x - mean
 
-        # 2. Calculate the covariance matrix
         cov_matrix = torch.mm(x.t(), x) / x.shape[0]
 
-        # 3. Get eigenvalues and eigenvectors
         eigenvalues, eigenvectors = torch.linalg.eig(cov_matrix)
-        print(eigenvalues, eigenvectors)
-        # Sort eigenvalues and corresponding eigenvectors
         sorted_indices = torch.argsort(eigenvalues.real, descending=True)
         eigenvectors = eigenvectors[:, sorted_indices]
 
-        # 4. Select the top k eigenvectors
         selected_eigenvectors = eigenvectors[:, :self.n_components]
 
-        # 5. Transform the data
         transformed_data = torch.mm(selected_eigenvectors.real, data)
 
         return transformed_data
