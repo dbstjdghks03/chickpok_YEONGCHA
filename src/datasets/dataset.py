@@ -137,8 +137,8 @@ class PreProcess:
         specgram = torchaudio.transforms.Spectrogram(n_fft=640, win_length=640, hop_length=256, power=None )(y)
 
         # Compute Spectral Centroid
-        frequencies = torch.linspace(0, sample_rate / 2, specgram.shape[1])
-        centroid = torch.sum(frequencies * specgram) / torch.sum(specgram)
+        frequencies = torch.linspace(0, sample_rate / 2, steps=spectrogram.size(1))
+        centroid = torch.sum(frequencies.unsqueeze(0) * spectrogram, dim=1) / torch.sum(spectrogram, dim=1)
 
         print(centroid)
         # Reshape the tensor
