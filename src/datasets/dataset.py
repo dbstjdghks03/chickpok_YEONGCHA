@@ -85,8 +85,26 @@ class PreProcess:
         return arr
 
     def get_mfcc(self):
-        mfcc = librosa.feature.mfcc(y=self.y, sr=22050, n_mfcc=10, n_fft=640, hop_length=256)
-        mfcc = preprocessing.scale(mfcc, axis=1)
+        # mfcc = librosa.feature.mfcc(y=self.y, sr=22050, n_mfcc=10, n_fft=640, hop_length=256)
+        # mfcc = preprocessing.scale(mfcc, axis=1)
+
+        y = torch.tensor(self.y)  # If `self.y` is not already a tensor
+
+        # Compute MFCC using torchaudio
+        mfcc = torchaudio.transforms.MFCC(
+            sample_rate=22050,
+            n_mfcc=10,
+            melkwargs={
+                "n_fft": 640,
+                "hop_length": 256,
+                "center": True,  # default behavior in librosa, adjust if needed
+            }
+        )(y)
+
+        # Scaling the MFCC (equivalent to preprocessing.scale in sklearn)
+        mean = torch.mean(mfcc, dim=1, keepdim=True)
+        std = torch.std(mfcc, dim=1, keepdim=True)
+        mfcc = (mfcc - mean) / std
 
         return self.getrgb(mfcc, mfcc.min(), mfcc.max())
 
