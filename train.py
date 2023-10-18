@@ -9,7 +9,7 @@ from sklearn.model_selection import StratifiedKFold
 parser = argparse.ArgumentParser()
 
 # 3. parser.add_argument로 받아들일 인수를 추가해나간다.
-parser.add_argument('--epochs', type=int, default=128)
+parser.add_argument('--epochs', type=int, default=5)
 parser.add_argument('--root', type=str)
 parser.add_argument('--batch', type=int, default=2)
 
