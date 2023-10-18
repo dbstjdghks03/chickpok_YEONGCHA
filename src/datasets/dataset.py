@@ -129,21 +129,20 @@ class PreProcess:
 
     def get_sc(self):
         # cent = librosa.feature.spectral_centroid(y=self.y, sr=22050).reshape(-1, 1)
+        window = torch.hann_window
+        # Compute the STFT
+        y_stft = torch.stft(y, n_fft=640, hop_length=256, window=window(640, periodic=True),
+                            return_complex=True)
 
-        y = torch.tensor(self.y)  # If `self.y` is not already a tensor
-        sample_rate = 22050
+        # Compute magnitude spectrum
+        magnitude = torch.abs(y_stft)
 
-        # Compute the Spectrogram
-        specgram = torchaudio.transforms.Spectrogram(n_fft=640, win_length=640, hop_length=256, power=None )(y)
+        # Compute the spectral centroid
+        freqs = torch.linspace(0, 22050 / 2, 640 // 2 + 1, dtype=torch.float32)
+        centroid = torch.sum(freqs * magnitude, dim=1) / (
+                    torch.sum(magnitude, dim=1) + 1e-10)  # Adding a small constant to avoid division by zero
 
-        # Compute Spectral Centroid
-        frequencies = torch.linspace(0, sample_rate / 2, specgram.shape[1])
-        centroid = torch.sum(frequencies * specgram) / torch.sum(specgram)
-
-        print(centroid)
-        # Reshape the tensor
-        cent = centroid.reshape(-1, 1)
-        return cent
+        return centroid.reshape(-1, 1)
 
 
 class YoungDataSet(Dataset):
