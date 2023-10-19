@@ -52,7 +52,7 @@ if __name__ == '__main__':
             print(f"{epoch}th epoch starting.")
             running_test_loss = 0
             for i, (stft, mfcc, sc, horn, position) in enumerate(train_loader):
-                stft, mfcc, sc, horn, position = stft.to(device).float(), mfcc.to(device).float(), sc.to(device).float(), horn.to(device), position.to(device)
+                stft, mfcc, sc, horn, position = stft.to(device).float(), mfcc.to(device).float(), sc.to(device).float(), horn.to(device), position.to(device).float()
                 optimizer.zero_grad()
                 output = model(mfcc, sc)
                 train_loss = loss(output, horn, position)
