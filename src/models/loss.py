@@ -3,7 +3,6 @@ from torch import nn
 
 
 def loss(output, horn, position, alpha=1e-3, beta=1):
-    print(output, horn, position)
     mse_loss = nn.MSELoss()
     mask = (horn == -1).float()
 
