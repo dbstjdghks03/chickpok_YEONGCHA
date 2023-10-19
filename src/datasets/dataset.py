@@ -110,6 +110,7 @@ class PreProcess:
 
     def get_sc(self):
         y = torch.tensor(self.y)
+        print(y.shape)
         cent = torchaudio.functional.spectral_centroid(waveform=y, sample_rate=22050, pad=0, window=torch.hann_window(640), n_fft=640, win_length=640, hop_length=256)
 
         return cent.reshape(-1, 1)
