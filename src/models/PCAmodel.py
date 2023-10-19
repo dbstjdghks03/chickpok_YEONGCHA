@@ -53,6 +53,7 @@ class PCA(nn.Module):
             U, S, Vt = torch.linalg.svd(x)
         except Exception as e:
             print(e)
+            print(U.shape, S.shape, Vt.shape, x.shape)
             return x[:, :self.n_components]
 
 
@@ -60,7 +61,7 @@ class PCA(nn.Module):
             n_components = self.n_components
         else:
             n_components = Vt.shape[1]
-        return x @ Vt.t()[:, :self.n_components]
+        return x @ Vt.t()[:, :n_components]
 
 
 if __name__ == "__main__":
