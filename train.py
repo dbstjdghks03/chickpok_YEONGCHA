@@ -8,6 +8,7 @@ from sklearn.model_selection import StratifiedKFold
 from src.models.loss import loss
 import matplotlib.pyplot as plt
 import torch.nn as nn
+import os
 
 parser = argparse.ArgumentParser()
 
@@ -15,6 +16,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--epochs', type=int, default=5)
 parser.add_argument('--root', type=str)
 parser.add_argument('--batch', type=int, default=2)
+parser.add_argument('--num_workers', type=int, default=os.cpu_count())
+parser.add_argument('--n_components', type=int, default=10)
 
 args = parser.parse_args()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -22,7 +25,9 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 root = args.root
 epochs = args.epochs
 batch = args.batch
-n_components = 10
+num_workers = args.num_workers
+n_components = args.n_components
+
 print(root)
 dataset = YoungDataSet(root=root, is_npy=True)
 
@@ -40,8 +45,8 @@ if __name__ == '__main__':
         train_set = torch.utils.data.Subset(dataset, train_indices)
         test_set = torch.utils.data.Subset(dataset, test_indices)
 
-        train_loader = DataLoader(train_set, batch_size=batch, shuffle=True)
-        test_loader = DataLoader(test_set, batch_size=batch, shuffle=False)
+        train_loader = DataLoader(train_set, batch_size=batch, shuffle=True, num_workers=num_workers)
+        test_loader = DataLoader(test_set, batch_size=batch, shuffle=False, num_workers=num_workers)
 
         train_losses = []
         test_losses = []
