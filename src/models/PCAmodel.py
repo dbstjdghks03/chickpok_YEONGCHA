@@ -55,6 +55,7 @@ class PCA(nn.Module):
         print('before mean', torch.any(torch.isnan(x)))
         mean = torch.mean(x, dim=0)
         std = torch.std(x, dim=0)
+        print('mean', mean, 'std', std)
         x = (x - mean) / std
         print(torch.any(torch.isnan(x)))
         try:
