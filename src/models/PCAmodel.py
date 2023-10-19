@@ -16,15 +16,22 @@ class PCAModel(nn.Module):
 
     def forward(self, mfcc, sc):
         res = self.Resnet(mfcc)
+        print('res', torch.isnan(res))
         sc = sc.squeeze()
-        res_reduced = self.ResLayer(res)
-        sc_reduced = self.SCLayer(sc)
+        print('sc', torch.isnan(sc))
 
+        res_reduced = self.ResLayer(res)
+        print('res_reduced', torch.isnan(res_reduced))
+
+        sc_reduced = self.SCLayer(sc)
+        print('sc_reduced', torch.isnan(sc_reduced))
         res_reduced= res_reduced.view(res_reduced.size(0), -1)
         sc_reduced = sc_reduced.view(sc_reduced.size(0), -1)
 
         combined_feat = torch.concat((res_reduced, sc_reduced), -1)
         out = self.SVM(combined_feat)
+        print('out', torch.isnan(out))
+
 
         return out
 
