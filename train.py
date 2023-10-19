@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
                 predictions = torch.tensor([-1 if 1 - out[0] > 0 else 1 for out in output]).to(device)
                 correct_predictions = (predictions == horn).float().sum()
-                position_mse += MSELoss(output[:, 1], position)
+                # position_mse += MSELoss(output[:, 1], position)
                 test_len += position.shape[0]
 
             accuracy = correct_predictions / test_len
