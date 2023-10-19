@@ -50,9 +50,7 @@ class PCA(nn.Module):
         x = x - mean
 
         U, S, Vt = torch.linalg.svd(x)
-        x @ Vt.t()
-        print(x.shape, Vt.t().shape)
-        return x @ Vt.t()
+        return x @ Vt.t()[:, :self.n_components]
 
 
 if __name__ == "__main__":
