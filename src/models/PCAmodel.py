@@ -10,7 +10,7 @@ class PCAModel(nn.Module):
         super(PCAModel, self).__init__()
         self.Resnet = Resnet()
 
-        self.SCLayer = nn.Sequential( nn.Linear(2496, n_components),nn.ReLU())
+        self.SCLayer = nn.Sequential(nn.Linear(2496, n_components), nn.ReLU())
         self.ResLayer = nn.Sequential(nn.Linear(2048, n_components), nn.ReLU())
         self.SVM = nn.Linear(2 * n_components, 2)
 
@@ -19,15 +19,14 @@ class PCAModel(nn.Module):
         sc = sc.squeeze()
         res_reduced = self.ResLayer(res)
         sc_reduced = self.SCLayer(sc)
-
+        if sc_reduced.dim() == 1:
+            sc_reduced = sc_reduced.unsqueeze(0)
         print(res_reduced.shape, sc_reduced.shape)
 
         combined_feat = torch.concat((res_reduced, sc_reduced), -1)
         out = self.SVM(combined_feat)
 
         return out
-
-    
 
 
 class Resnet(nn.Module):
@@ -73,4 +72,4 @@ if __name__ == "__main__":
     b = torch.rand(16, 2000, 1)
 
     pca = PCAModel(10)
-    print(pca(a,b))
+    print(pca(a, b))
