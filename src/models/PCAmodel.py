@@ -53,7 +53,7 @@ class PCA(nn.Module):
             U, S, Vt = torch.linalg.svd(x)
         except Exception as e:
             print(e)
-            print(U.shape, S.shape, Vt.shape, x.shape)
+            print(x.shape)
             return x[:, :self.n_components]
 
 
