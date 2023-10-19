@@ -52,6 +52,7 @@ class PCA(nn.Module):
         self.n_components = n_components
 
     def forward(self, x):
+        print('before mean', torch.any(torch.isnan(x)))
         mean = torch.mean(x, dim=0)
         std = torch.std(x, dim=0)
         x = (x - mean) / std
