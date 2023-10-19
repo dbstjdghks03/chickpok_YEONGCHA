@@ -49,8 +49,8 @@ class PCA(nn.Module):
 
     def forward(self, x):
         mean = torch.mean(x, dim=0)
-        x = x - mean
-
+        std = torch.std(x, dim=0)
+        x = (x - mean) / std
         try:
             U, S, Vt = torch.linalg.svd(x)
         except Exception as e:
