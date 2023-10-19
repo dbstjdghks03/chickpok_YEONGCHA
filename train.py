@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import torch.nn as nn
 import os
 import random
-
+import numpy as np
 seed = 42
 loss = horn_loss
 
