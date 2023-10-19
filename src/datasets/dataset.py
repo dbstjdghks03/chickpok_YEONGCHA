@@ -150,7 +150,7 @@ class YoungDataSet(Dataset):
                         else:
                             cluster = 'CL_NN'
                     s206_audio = np.load(self.root+s206_path)
-                    has_nan = torch.any(torch.isnan(s206_audio))
+                    has_nan = torch.any(torch.isnan(torch.tensor(s206_audio)))
                     print(has_nan.item())
                     self.data_list.append([s206_audio, batcam_path, train, horn, position, cluster, data])
 
