@@ -74,14 +74,6 @@ class PCALightModel(L.LightningModule):
             self.targets[fnames[i]][int(slices[i])] = target[i].cpu().numpy()
 
     def on_validation_epoch_end(self):
-        for fname in self.reconstructions:
-            self.reconstructions[fname] = np.stack(
-                [out for _, out in sorted(self.reconstructions[fname].items())]
-            )
-        for fname in self.targets:
-            self.targets[fname] = np.stack(
-                [out for _, out in sorted(self.targets[fname].items())]
-            )
         val_loss = sum([ssim_loss(self.targets[fname], self.reconstructions[fname]) for fname in self.reconstructions])
         num_subjects = len(self.reconstructions)
         val_time = time.perf_counter() - self.val_start

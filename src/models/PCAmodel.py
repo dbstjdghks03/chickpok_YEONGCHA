@@ -47,16 +47,17 @@ class PCA(nn.Module):
 
     def forward(self, x):
         mean = torch.mean(x, dim=0)
-        data = x - mean
+        x = x - mean
 
-        cov_matrix = torch.mm(x.t(), x) / x.shape[0]
+        U, S, Vt = torch.linalg.svd(x)
+        x @ Vt.t()
 
-        eigenvalues, eigenvectors = torch.linalg.eig(cov_matrix)
-        sorted_indices = torch.argsort(eigenvalues.real, descending=True)
-        eigenvectors = eigenvectors[:, sorted_indices]
+        return x @ Vt.t()
 
-        selected_eigenvectors = eigenvectors[:, :self.n_components]
 
-        transformed_data = torch.mm(data, selected_eigenvectors.real)
+if __name__ == "__main__":
+    a = torch.rand(16, 3, 200, 3000)
+    b = torch.rand(16, 2000, 1)
 
-        return transformed_data
+    pca = PCAModel(10)
+    pca(a,b)
