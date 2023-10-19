@@ -9,7 +9,9 @@ from src.models.loss import loss, horn_loss
 import matplotlib.pyplot as plt
 import torch.nn as nn
 import os
+import random
 
+seed = 42
 loss = horn_loss
 
 random.seed(seed)
