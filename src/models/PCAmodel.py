@@ -49,7 +49,17 @@ class PCA(nn.Module):
         mean = torch.mean(x, dim=0)
         x = x - mean
 
-        U, S, Vt = torch.linalg.svd(x)
+        try:
+            U, S, Vt = torch.linalg.svd(x)
+        except Exception as e:
+            print(e)
+            return x[:, :self.n_components]
+
+
+        if Vt.shape[1] >= self.n_components:
+            n_components = self.n_components
+        else:
+            n_components = Vt.shape[1]
         return x @ Vt.t()[:, :self.n_components]
 
 
