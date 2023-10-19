@@ -60,4 +60,4 @@ if __name__ == "__main__":
     b = torch.rand(16, 2000, 1)
 
     pca = PCAModel(10)
-    pca(a,b)
+    print(pca(a,b))
