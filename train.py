@@ -5,10 +5,17 @@ from torch.utils.data.dataset import random_split
 from torch.utils.data import DataLoader
 from src.models.PCAmodel import PCAModel
 from sklearn.model_selection import StratifiedKFold
-from src.models.loss import loss
+from src.models.loss import loss, horn_loss
 import matplotlib.pyplot as plt
 import torch.nn as nn
 import os
+
+loss = horn_loss
+
+random.seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
 
 parser = argparse.ArgumentParser()
 
@@ -83,7 +90,7 @@ if __name__ == '__main__':
 
             print(f'train_loss: {epoch_train_loss}')
             print('[Test set] Average loss: {:.4f}, Horn Accuracy: {}/{} ({:.2f}%), Position MSE: {}\n'.format(
-                epoch_test_loss / len(test_loader), correct_predictions, test_len,
+                epoch_test_loss / test_len, correct_predictions, test_len,
                 accuracy, position_mse))
 
             train_losses.append(epoch_train_loss)
