@@ -55,9 +55,10 @@ if __name__ == '__main__':
                 stft, mfcc, sc, horn = stft.to(device).float(), mfcc.to(device).float(), sc.to(device).float(), horn.to(device)
                 optimizer.zero_grad()
                 output = model(mfcc, sc)
-                train_loss = loss(model(output, horn, position))
+                train_loss = loss(output, horn, position)
                 train_loss.backward()
                 optimizer.step()
+                print(train_loss)
 
     #     model.eval()
     #     running_train_loss = 0.0
