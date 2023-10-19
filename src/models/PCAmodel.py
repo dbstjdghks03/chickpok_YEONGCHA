@@ -10,7 +10,7 @@ class PCAModel(nn.Module):
         super(PCAModel, self).__init__()
         self.Resnet = Resnet()
         self.PCA = PCA(n_components=n_components)
-        self.SVM = nn.Linear(2 * n_components, 1)
+        self.SVM = nn.Linear(2 * n_components, 2)
 
     def forward(self, mfcc, sc):
         res = self.Resnet(mfcc)

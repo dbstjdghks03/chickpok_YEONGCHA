@@ -26,7 +26,6 @@ class PCALightModel(L.LightningModule):
         self.total_loss = 0
 
         self.val_loss_log = np.empty((0, 2))
-        self.targets = defaultdict(dict)
 
         self.best_val_loss = 1.
 
@@ -42,6 +41,8 @@ class PCALightModel(L.LightningModule):
         self.total_loss = 0.
 
     def training_step(self, batch, batch_idx):
+        stft, mfcc, sc, horn = batch
+
         # s206_audio, batcam_audio, s206_beam, batcam_beam, horn, position, _ = batch
         stft, mfcc, sc, label = batch
         output = self.model()

@@ -5,6 +5,7 @@ from torch.utils.data.dataset import random_split
 from torch.utils.data import DataLoader
 from src.models.PCAmodel import PCAModel
 from sklearn.model_selection import StratifiedKFold
+from src.models.loss import loss
 
 parser = argparse.ArgumentParser()
 
@@ -53,7 +54,8 @@ if __name__ == '__main__':
             for i, (stft, mfcc, sc, horn, position) in enumerate(train_loader):
                 stft, mfcc, sc, horn = stft.to(device).float(), mfcc.to(device).float(), sc.to(device).float(), horn.to(device)
                 optimizer.zero_grad()
-                train_loss = torch.clamp(1 - model(mfcc, sc) * horn, min=0)
+                output = model(mfcc, sc)
+                train_loss = loss(model(output, horn, position))
                 train_loss.backward()
                 optimizer.step()
 
