@@ -1,7 +1,9 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 
 class PCAModel(nn.Module):
     def __init__(self, n_components):
@@ -37,6 +39,7 @@ class Resnet(nn.Module):
         x = self.model(x)
         return x.view(x.size(0), -1)
 
+
 class PCA(nn.Module):
     def __init__(self, n_components):
         super(PCA, self).__init__()
@@ -54,6 +57,6 @@ class PCA(nn.Module):
 
         selected_eigenvectors = eigenvectors[:, :self.n_components]
 
-        transformed_data = torch.mm(selected_eigenvectors.real, data)
+        transformed_data = torch.mm(data, selected_eigenvectors.real)
 
         return transformed_data

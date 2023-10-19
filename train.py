@@ -32,9 +32,6 @@ data_list = dataset.data_list
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 print([item[5] for item in data_list])
 
-
-
-
 if __name__ == '__main__':
     model = PCAModel(n_components).to(device)
     # optimizer로는 Adam 사용
