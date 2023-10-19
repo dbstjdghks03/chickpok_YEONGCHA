@@ -51,6 +51,8 @@ def tdms_preprocess(tdms_path):
 class PreProcess:
     def __init__(self, tdms_file):
         self.y = tdms_file
+        self.spectral_centroid = transforms.SpectralCentroid(22050)
+
 
     def getrgb(self, amplitude, min_amplitude=0, max_amplitude=10):
         # 진폭값을 [0, 1] 범위로 정규화
@@ -110,8 +112,7 @@ class PreProcess:
 
     def get_sc(self):
         y = torch.tensor(self.y).unsqueeze(0)
-        print(y.shape)
-        cent = torchaudio.functional.spectral_centroid(waveform=y, sample_rate=22050, pad=0, window=torch.hann_window(640), n_fft=640, win_length=640, hop_length=275)
+        cent = self.spectral_centroid(y)
 
         return cent.reshape(-1, 1)
 
