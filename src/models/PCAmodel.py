@@ -57,6 +57,7 @@ class PCA(nn.Module):
         std = torch.std(x, dim=0) + 1e-5
         x = (x - mean) / std
         print(mean.shape, std.shape)
+        print(mean, std)
         print(torch.any(torch.isnan(x)))
         try:
             U, S, Vt = torch.linalg.svd(x)
