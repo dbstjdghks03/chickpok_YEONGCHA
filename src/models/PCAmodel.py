@@ -10,8 +10,10 @@ class PCAModel(nn.Module):
         super(PCAModel, self).__init__()
         self.Resnet = Resnet()
 
-        self.SCLayer = nn.Sequential(nn.Linear(2496, n_components), nn.ReLU())
-        self.ResLayer = nn.Sequential(nn.Linear(2048, n_components), nn.ReLU())
+        # self.SCLayer = nn.Sequential(nn.Linear(2496, n_components), nn.ReLU())
+        # self.ResLayer = nn.Sequential(nn.Linear(2048, n_components), nn.ReLU())
+
+        self.PCA = PCA(n_components=n_components)
         self.SVM = nn.Linear(2 * n_components, 2)
 
     def forward(self, mfcc, sc):
@@ -20,10 +22,10 @@ class PCAModel(nn.Module):
         sc = sc.squeeze()
         print('sc', torch.any(torch.isnan(sc)))
 
-        res_reduced = self.ResLayer(res)
+        res_reduced = self.PCA(res)
         print('res_reduced', torch.any(torch.isnan(res_reduced)))
 
-        sc_reduced = self.SCLayer(sc)
+        sc_reduced = self.PCA(sc)
         print('sc_reduced', torch.any(torch.isnan(sc_reduced)))
         res_reduced= res_reduced.view(res_reduced.size(0), -1)
         sc_reduced = sc_reduced.view(sc_reduced.size(0), -1)
@@ -50,29 +52,28 @@ class Resnet(nn.Module):
         return x.view(x.size(0), -1)
 
 
-# class PCA(nn.Module):
-#     def __init__(self, n_components):
-#         super(PCA, self).__init__()
-#         self.n_components = n_components
-#
-#     def forward(self, x):
-#         mean = torch.mean(x, dim=0)
-#         std = torch.std(x, dim=0)
-#         x = (x - mean) / std
-#         try:
-#             U, S, Vt = torch.linalg.svd(x)
-#         except Exception as e:
-#             print(e)
-#             print(x.shape)
-#             return x[:, :self.n_components]
-#
-#
-#         if Vt.shape[1] >= self.n_components:
-#             n_components = self.n_components
-#         else:
-#             n_components = Vt.shape[1]
-#         return x @ Vt.t()[:, :n_components]
-#
+class PCA(nn.Module):
+    def __init__(self, n_components):
+        super(PCA, self).__init__()
+        self.n_components = n_components
+
+    def forward(self, x):
+        mean = torch.mean(x, dim=0)
+        std = torch.std(x, dim=0)
+        x = (x - mean) / std
+        try:
+            U, S, Vt = torch.linalg.svd(x)
+        except Exception as e:
+            print(e)
+            print(x.shape)
+            return x[:, :self.n_components]
+
+
+        if Vt.shape[1] >= self.n_components:
+            n_components = self.n_components
+        else:
+            n_components = Vt.shape[1]
+        return x @ Vt.t()[:, :n_components]
 
 if __name__ == "__main__":
     a = torch.rand(16, 3, 200, 3000)
