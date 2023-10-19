@@ -8,7 +8,7 @@ import numpy as np
 import torchaudio
 import torch
 import librosa
-
+from torchaudio.transforms import SpectralCentroid
 __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 
 
@@ -51,7 +51,7 @@ def tdms_preprocess(tdms_path):
 class PreProcess:
     def __init__(self, tdms_file):
         self.y = tdms_file
-        self.spectral_centroid = transforms.SpectralCentroid(22050)
+        self.spectral_centroid = SpectralCentroid(22050)
 
 
     def getrgb(self, amplitude, min_amplitude=0, max_amplitude=10):
