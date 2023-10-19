@@ -112,6 +112,7 @@ class PreProcess:
 
     def get_sc(self):
         y = torch.tensor(self.y).unsqueeze(0)
+        print("before get_sc", torch.any(torch.isnan(y)))
         cent = self.spectral_centroid(y)
 
         return cent.reshape(-1, 1)
