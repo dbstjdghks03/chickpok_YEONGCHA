@@ -1,20 +1,7 @@
-import torch
 from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
-# import pandas as pd
 import os
-# import numpy as np
-import re
-import numpy as np
-import pandas as pd
-# import librosa
 from sklearn import preprocessing
-# import matplotlib.pyplot as plt
-# from PIL import Image
-# import matplotlib.cm as cm
 import json
-# from src.data.preprocessing import PreProcess
-# # from src.data.preprocessing import AudioAugs
 import re
 from nptdms import TdmsFile
 import numpy as np
@@ -22,18 +9,18 @@ import torchaudio
 import torch
 import librosa
 
-#__all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
+__all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 
 
 def get_numpy_from_nonfixed_2d_array(input, fixed_length=4000000, padding_value=0):
     output = np.pad(input, (0, fixed_length), 'constant', constant_values=padding_value)[:fixed_length]
     return output
 
+
 train_to_idx = {
     '수소열차': 0,
     '차세대전동차': 1
 }
-
 class_to_idx = {
     'Yes': 0,
     'No': 1
@@ -63,22 +50,23 @@ def tdms_preprocess(tdms_path):
 
 class PreProcess:
     def __init__(self, tdms_file):
-        print(tdms_file['RawData'], tdms_file['RawData'].channels())
-        L = list(name for name in tdms_file['RawData'].channels())
-        L_str = list(map(str, L))
-        data_lst = []
-        peak_lst = []
-        for string in L_str:
-            num = re.sub(r'[^0-9]', '', string)
-            if num:
-                selected_data = tdms_file['RawData'][f'Channel{num}']
-                data_lst.append(selected_data.data)
-                peak_lst.append(max(abs(selected_data.data)))
-        data_sum = sum(data_lst)
-        peakAmp = max(abs(data_sum))
-        maxPeak = max(peak_lst)
-
-        self.y = get_numpy_from_nonfixed_2d_array((data_sum / peakAmp) * maxPeak)
+        # print(tdms_file['RawData'], tdms_file['RawData'].channels())
+        # L = list(name for name in tdms_file['RawData'].channels())
+        # L_str = list(map(str, L))
+        # data_lst = []
+        # peak_lst = []
+        # for string in L_str:
+        #     num = re.sub(r'[^0-9]', '', string)
+        #     if num:
+        #         selected_data = tdms_file['RawData'][f'Channel{num}']
+        #         data_lst.append(selected_data.data)
+        #         peak_lst.append(max(abs(selected_data.data)))
+        # data_sum = sum(data_lst)
+        # peakAmp = max(abs(data_sum))
+        # maxPeak = max(peak_lst)
+        #
+        # self.y = get_numpy_from_nonfixed_2d_array((data_sum / peakAmp) * maxPeak)
+        self.y = tdms_file
 
     def getrgb(self, amplitude, min_amplitude=0, max_amplitude=10):
         # 진폭값을 [0, 1] 범위로 정규화
@@ -92,29 +80,31 @@ class PreProcess:
             g = 0  # 여기서는 녹색 채널을 0으로 설정
             b = 255 - r  # 파란색 채널을 반전
             flat[i] = [r, g, b]
-        arr = np.array(flat).reshape(amplitude.shape[0], amplitude.shape[1], 3)
+        arr = np.array(flat).reshape(3, amplitude.shape[0], amplitude.shape[1])
 
         return arr
 
     def get_mfcc(self):
-        print(self.y)
-        mfcc = librosa.feature.mfcc(y=self.y, sr=22050, n_mfcc=10, n_fft=640, hop_length=256)
-        mfcc = preprocessing.scale(mfcc, axis=1)
+        # mfcc = librosa.feature.mfcc(y=self.y, sr=22050, n_mfcc=10, n_fft=640, hop_length=256)
+        # mfcc = preprocessing.scale(mfcc, axis=1)
 
+        y = torch.tensor(self.y)  # If `self.y` is not already a tensor
 
+        # Compute MFCC using torchaudio
+        mfcc = torchaudio.transforms.MFCC(
+            sample_rate=22050,
+            n_mfcc=10,
+            melkwargs={
+                "n_fft": 640,
+                "hop_length": 256,
+                "center": True,  # default behavior in librosa, adjust if needed
+            }
+        )(y)
 
-        '''pad2d = lambda a, i: a[:, 0:i] if a.shape[1] > i else np.hstack((a, np.zeros((a.shape[0], i-a.shape[1]))))
-        padded_mfcc = pad2d(mfcc, 6700)'''
-
-        '''# 색상 매핑 (RGB)
-        cmap = cm.get_cmap('plasma')  # Here 'viridis' is the color map. You can use others like 'plasma', 'inferno', etc.
-        rgb_image = cmap(padded_mfcc)  # This will be a 3D array with dimensions: [height, width, 3 (for RGB channels)]
-        print(rgb_image.shape)
-        plt.figure(figsize=(10, 5))
-        plt.imshow(rgb_image)
-        plt.axis('off')  # 축을 숨기려면 이 줄을 추가
-        plt.savefig('mfcc.jpg')
-        plt.show()'''
+        # Scaling the MFCC (equivalent to preprocessing.scale in sklearn)
+        mean = torch.mean(mfcc, dim=1, keepdim=True)
+        std = torch.std(mfcc, dim=1, keepdim=True)
+        mfcc = (mfcc - mean) / std
 
         return self.getrgb(mfcc, mfcc.min(), mfcc.max())
 
@@ -138,12 +128,15 @@ class PreProcess:
         return self.getrgb(log_spectrogram, log_spectrogram.min(), log_spectrogram.max())
 
     def get_sc(self):
-        cent = librosa.feature.spectral_centroid(y=self.y, sr=22050)
-        return cent
+        # cent = librosa.feature.spectral_centroid(y=self.y, sr=22050).reshape(-1, 1)
+        y = torch.tensor(self.y)
+        cent = torchaudio.functional.spectral_centroid(waveform=y, sample_rate=22050, pad=0, window=torch.hann_window(640), n_fft=640, win_length=640, hop_length=256)
+
+        return cent.reshape(-1, 1)
 
 
 class YoungDataSet(Dataset):
-    def __init__(self, root, transform=None):
+    def __init__(self, root, is_npy, transform=None):
         self.transform = transform
         self.data_list = []
         self.root = root
@@ -156,35 +149,41 @@ class YoungDataSet(Dataset):
                         data = json.load(f)
                     folder_name = dirpath.split("/")[-1]
                     s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206', data['title_s206'])
+                    if is_npy:
+                        s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206',
+                                                 data['title_s206'].split(".")[0] + ".npy")
+
                     batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
                                                data['title_batcam2'])
                     train = train_to_idx[data['Train']]
                     horn = class_to_idx[data['Horn']]
-                    if horn == "Yes":
+
+                    if horn == 0:
                         position = int(data['Position'])
                         if train == 0:
                             cluster = 'CL_HY'
                         else:
                             cluster = 'CL_NY'
                     else:
-                        position = ''
+                        position = -1
                         if train == 0:
                             cluster = 'CL_HN'
                         else:
                             cluster = 'CL_NN'
+
                     self.data_list.append([s206_path, batcam_path, train, horn, position, cluster, data])
-        self.len = len(self.data_list)
 
     def __getitem__(self, idx):
-        s206_path, batcam_path, horn, position, data = self.data_list[idx]
-
-        s206_audio = TdmsFile(self.root + s206_path)
+        s206_path, batcam_path, _, horn, position, _, _ = self.data_list[idx]
+        s206_audio = np.load(self.root+s206_path)
+        # s206_audio = TdmsFile(self.root + s206_path)
         # batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
         print(self.root + s206_path, s206_audio)
         s206 = PreProcess(s206_audio)
         print(s206.get_stft().shape, s206.get_mfcc().shape, s206.get_sc().shape, horn)
 
-        return s206.get_stft(), s206.get_mfcc(), s206.get_sc(), horn, position
+        return torch.tensor(s206.get_stft()), torch.tensor(s206.get_mfcc()), torch.tensor(
+            s206.get_sc()), horn, torch.tensor(position)
         # if self.transform:
         #     self.data[index] = AudioAugs(self.transform, sampling_rate, p=0.5)
 
