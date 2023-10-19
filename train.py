@@ -18,6 +18,7 @@ parser.add_argument('--root', type=str)
 parser.add_argument('--batch', type=int, default=2)
 parser.add_argument('--num_workers', type=int, default=os.cpu_count())
 parser.add_argument('--n_components', type=int, default=10)
+parser.add_argument('--lr', type=float, default=1e-5)
 
 args = parser.parse_args()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -27,10 +28,9 @@ epochs = args.epochs
 batch = args.batch
 num_workers = args.num_workers
 n_components = args.n_components
+lr = args.lr
 
-print(root)
 dataset = YoungDataSet(root=root, is_npy=True)
-
 data_list = dataset.data_list
 
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
@@ -38,7 +38,7 @@ MSELoss = nn.MSELoss()
 if __name__ == '__main__':
     model = PCAModel(n_components).to(device)
     # optimizer로는 Adam 사용
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     valid_best = 99999999
     for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[5] for item in data_list])):
