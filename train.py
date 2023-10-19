@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
         for epoch in range(epochs):
             model.train()
-            print(f"font {fold}: {epoch}th epoch starting.")
+            print(f"fold {fold}: {epoch}th epoch starting.")
             epoch_test_loss = 0
             epoch_train_loss = 0
             for i, (stft, mfcc, sc, horn, position) in enumerate(train_loader):
