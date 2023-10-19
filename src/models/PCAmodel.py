@@ -52,9 +52,11 @@ class PCA(nn.Module):
         self.n_components = n_components
 
     def forward(self, x):
+        print(x.shape)
         mean = torch.mean(x, dim=0)
         std = torch.std(x, dim=0) + 1e-5
         x = (x - mean) / std
+        print(mean.shape, std.shape)
         print(torch.any(torch.isnan(x)))
         try:
             U, S, Vt = torch.linalg.svd(x)
