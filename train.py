@@ -44,7 +44,6 @@ if __name__ == '__main__':
     for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[5] for item in data_list])):
         train_set = torch.utils.data.Subset(dataset, train_indices)
         test_set = torch.utils.data.Subset(dataset, test_indices)
-        print(len(test_set))
         train_loader = DataLoader(train_set, batch_size=batch, shuffle=True, num_workers=num_workers)
         test_loader = DataLoader(test_set, batch_size=batch, shuffle=False, num_workers=num_workers)
 
@@ -68,6 +67,7 @@ if __name__ == '__main__':
 
             model.eval()
             position_mse = 0
+            test_len = 0
             for i, (stft, mfcc, sc, horn, position) in enumerate(test_loader):
                 stft, mfcc, sc, horn, position = stft.to(device).float(), mfcc.to(device).float(), sc.to(
                     device).float(), horn.to(device), position.to(device).float()
@@ -77,12 +77,13 @@ if __name__ == '__main__':
                 predictions = torch.tensor([1 if 1 - out[0] > 0 else -1 for out in output]).to(device)
                 correct_predictions = (predictions == horn).float().sum()
                 position_mse += MSELoss(output[:, 1], position)
+                test_len += position.shape[1]
 
-            accuracy = correct_predictions / len(test_loader)
+            accuracy = correct_predictions / test_len
 
             print(f'train_loss: {epoch_train_loss}')
-            print('[Test set] Average loss: {:.4f}, Horn Accuracy: {}/{} ({:.2f}%), Position MSE{}\n'.format(
-                epoch_test_loss / len(test_loader), correct_predictions, len(test_loader),
+            print('[Test set] Average loss: {:.4f}, Horn Accuracy: {}/{} ({:.2f}%), Position MSE: {}\n'.format(
+                epoch_test_loss / len(test_loader), correct_predictions, test_len,
                 accuracy, position_mse))
 
             train_losses.append(epoch_train_loss)
