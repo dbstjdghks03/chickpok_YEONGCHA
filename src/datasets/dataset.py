@@ -50,22 +50,6 @@ def tdms_preprocess(tdms_path):
 
 class PreProcess:
     def __init__(self, tdms_file):
-        # print(tdms_file['RawData'], tdms_file['RawData'].channels())
-        # L = list(name for name in tdms_file['RawData'].channels())
-        # L_str = list(map(str, L))
-        # data_lst = []
-        # peak_lst = []
-        # for string in L_str:
-        #     num = re.sub(r'[^0-9]', '', string)
-        #     if num:
-        #         selected_data = tdms_file['RawData'][f'Channel{num}']
-        #         data_lst.append(selected_data.data)
-        #         peak_lst.append(max(abs(selected_data.data)))
-        # data_sum = sum(data_lst)
-        # peakAmp = max(abs(data_sum))
-        # maxPeak = max(peak_lst)
-        #
-        # self.y = get_numpy_from_nonfixed_2d_array((data_sum / peakAmp) * maxPeak)
         self.y = tdms_file
 
     def getrgb(self, amplitude, min_amplitude=0, max_amplitude=10):
@@ -85,9 +69,6 @@ class PreProcess:
         return arr
 
     def get_mfcc(self):
-        # mfcc = librosa.feature.mfcc(y=self.y, sr=22050, n_mfcc=10, n_fft=640, hop_length=256)
-        # mfcc = preprocessing.scale(mfcc, axis=1)
-
         y = torch.tensor(self.y)  # If `self.y` is not already a tensor
 
         # Compute MFCC using torchaudio
@@ -128,7 +109,6 @@ class PreProcess:
         return self.getrgb(log_spectrogram, log_spectrogram.min(), log_spectrogram.max())
 
     def get_sc(self):
-        # cent = librosa.feature.spectral_centroid(y=self.y, sr=22050).reshape(-1, 1)
         y = torch.tensor(self.y)
         cent = torchaudio.functional.spectral_centroid(waveform=y, sample_rate=22050, pad=0, window=torch.hann_window(640), n_fft=640, win_length=640, hop_length=256)
 

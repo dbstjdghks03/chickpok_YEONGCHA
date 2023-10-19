@@ -10,7 +10,7 @@ class PCAModel(nn.Module):
         super(PCAModel, self).__init__()
         self.Resnet = Resnet()
         self.PCA = PCA(n_components=n_components)
-        self.SVM = nn.Linear(2 * n_components, 1)
+        self.SVM = nn.Linear(2 * n_components, 2)
 
     def forward(self, mfcc, sc):
         res = self.Resnet(mfcc)
@@ -47,16 +47,26 @@ class PCA(nn.Module):
 
     def forward(self, x):
         mean = torch.mean(x, dim=0)
-        data = x - mean
+        x = x - mean
 
-        cov_matrix = torch.mm(x.t(), x) / x.shape[0]
+        try:
+            U, S, Vt = torch.linalg.svd(x)
+        except Exception as e:
+            print(e)
+            print(x.shape)
+            return x[:, :self.n_components]
 
-        eigenvalues, eigenvectors = torch.linalg.eig(cov_matrix)
-        sorted_indices = torch.argsort(eigenvalues.real, descending=True)
-        eigenvectors = eigenvectors[:, sorted_indices]
 
-        selected_eigenvectors = eigenvectors[:, :self.n_components]
+        if Vt.shape[1] >= self.n_components:
+            n_components = self.n_components
+        else:
+            n_components = Vt.shape[1]
+        return x @ Vt.t()[:, :n_components]
 
-        transformed_data = torch.mm(data, selected_eigenvectors.real)
 
-        return transformed_data
+if __name__ == "__main__":
+    a = torch.rand(16, 3, 200, 3000)
+    b = torch.rand(16, 2000, 1)
+
+    pca = PCAModel(10)
+    print(pca(a,b))

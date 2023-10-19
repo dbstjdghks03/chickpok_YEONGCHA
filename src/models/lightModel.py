@@ -26,7 +26,6 @@ class PCALightModel(L.LightningModule):
         self.total_loss = 0
 
         self.val_loss_log = np.empty((0, 2))
-        self.targets = defaultdict(dict)
 
         self.best_val_loss = 1.
 
@@ -42,6 +41,8 @@ class PCALightModel(L.LightningModule):
         self.total_loss = 0.
 
     def training_step(self, batch, batch_idx):
+        stft, mfcc, sc, horn = batch
+
         # s206_audio, batcam_audio, s206_beam, batcam_beam, horn, position, _ = batch
         stft, mfcc, sc, label = batch
         output = self.model()
@@ -74,14 +75,6 @@ class PCALightModel(L.LightningModule):
             self.targets[fnames[i]][int(slices[i])] = target[i].cpu().numpy()
 
     def on_validation_epoch_end(self):
-        for fname in self.reconstructions:
-            self.reconstructions[fname] = np.stack(
-                [out for _, out in sorted(self.reconstructions[fname].items())]
-            )
-        for fname in self.targets:
-            self.targets[fname] = np.stack(
-                [out for _, out in sorted(self.targets[fname].items())]
-            )
         val_loss = sum([ssim_loss(self.targets[fname], self.reconstructions[fname]) for fname in self.reconstructions])
         num_subjects = len(self.reconstructions)
         val_time = time.perf_counter() - self.val_start

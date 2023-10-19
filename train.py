@@ -5,6 +5,7 @@ from torch.utils.data.dataset import random_split
 from torch.utils.data import DataLoader
 from src.models.PCAmodel import PCAModel
 from sklearn.model_selection import StratifiedKFold
+from src.models.loss import loss
 
 parser = argparse.ArgumentParser()
 
@@ -19,7 +20,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 root = args.root
 epochs = args.epochs
 batch = args.batch
-n_components = 30
+n_components = 10
 print(root)
 dataset = YoungDataSet(root=root, is_npy=True)
 
@@ -51,9 +52,12 @@ if __name__ == '__main__':
             print(f"{epoch}th epoch starting.")
             running_test_loss = 0
             for i, (stft, mfcc, sc, horn, position) in enumerate(train_loader):
-                stft, mfcc, sc, horn = stft.to(device).float(), mfcc.to(device).float(), sc.to(device).float(), horn.to(device)
+                stft, mfcc, sc, horn, position = stft.to(device).float(), mfcc.to(device).float(), sc.to(device).float(), horn.to(device), position.to(device).float()
                 optimizer.zero_grad()
-                train_loss = torch.clamp(1 - model(mfcc, sc) * horn, min=0)
+                output = model(mfcc, sc)
+                train_loss = loss(output, horn, position)
+                print(train_loss)
+
                 train_loss.backward()
                 optimizer.step()
 
