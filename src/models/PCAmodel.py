@@ -10,8 +10,8 @@ class PCAModel(nn.Module):
         super(PCAModel, self).__init__()
         self.Resnet = Resnet()
 
-        self.SCLayer = nn.Sequential( nn.Linear(2496, n_components),nn.Relu())
-        self.ResLayer = nn.Sequential(nn.Linear(2048, n_components), nn.Relu())
+        self.SCLayer = nn.Sequential( nn.Linear(2496, n_components),nn.ReLU())
+        self.ResLayer = nn.Sequential(nn.Linear(2048, n_components), nn.ReLU())
         self.SVM = nn.Linear(2 * n_components, 2)
 
     def forward(self, mfcc, sc):
