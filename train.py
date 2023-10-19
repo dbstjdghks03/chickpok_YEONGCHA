@@ -44,7 +44,7 @@ if __name__ == '__main__':
     for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[5] for item in data_list])):
         train_set = torch.utils.data.Subset(dataset, train_indices)
         test_set = torch.utils.data.Subset(dataset, test_indices)
-
+        print(len(test_set))
         train_loader = DataLoader(train_set, batch_size=batch, shuffle=True, num_workers=num_workers)
         test_loader = DataLoader(test_set, batch_size=batch, shuffle=False, num_workers=num_workers)
 
