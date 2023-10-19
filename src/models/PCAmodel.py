@@ -19,9 +19,9 @@ class PCAModel(nn.Module):
         sc = sc.squeeze()
         res_reduced = self.ResLayer(res)
         sc_reduced = self.SCLayer(sc)
-        if sc_reduced.dim() == 1:
-            sc_reduced = sc_reduced.unsqueeze(0)
-        print(res_reduced.shape, sc_reduced.shape)
+
+        res_reduced= res_reduced.view(res_reduced.size(0), -1)
+        sc_reduced = sc_reduced.view(sc_reduced.size(0), -1)
 
         combined_feat = torch.concat((res_reduced, sc_reduced), -1)
         out = self.SVM(combined_feat)
