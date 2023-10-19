@@ -56,9 +56,10 @@ if __name__ == '__main__':
                 optimizer.zero_grad()
                 output = model(mfcc, sc)
                 train_loss = loss(output, horn, position)
+                print(train_loss)
+
                 train_loss.backward()
                 optimizer.step()
-                print(train_loss)
 
     #     model.eval()
     #     running_train_loss = 0.0
