@@ -74,7 +74,7 @@ if __name__ == '__main__':
                 output = model(mfcc, sc)
                 epoch_test_loss += loss(output, horn, position).item()
 
-                predictions = torch.tensor([1 if 1 - out[0] > 0 else -1 for out in output]).to(device)
+                predictions = torch.tensor([-1 if 1 - out[0] > 0 else 1 for out in output]).to(device)
                 correct_predictions = (predictions == horn).float().sum()
                 position_mse += MSELoss(output[:, 1], position)
                 test_len += position.shape[0]
