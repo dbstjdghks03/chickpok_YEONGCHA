@@ -51,7 +51,7 @@ class PCA(nn.Module):
 
         U, S, Vt = torch.linalg.svd(x)
         x @ Vt.t()
-
+        print(x.shape, Vt.t().shape)
         return x @ Vt.t()
 
 
