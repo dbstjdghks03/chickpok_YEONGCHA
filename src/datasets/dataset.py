@@ -22,7 +22,7 @@ train_to_idx = {
     '차세대전동차': 1
 }
 class_to_idx = {
-    'Yes': 0,
+    'Yes': -1,
     'No': 1
 }
 
@@ -138,7 +138,7 @@ class YoungDataSet(Dataset):
                     train = train_to_idx[data['Train']]
                     horn = class_to_idx[data['Horn']]
 
-                    if horn == 0:
+                    if horn == -1:
                         position = int(data['Position'])
                         if train == 0:
                             cluster = 'CL_HY'
@@ -150,12 +150,11 @@ class YoungDataSet(Dataset):
                             cluster = 'CL_HN'
                         else:
                             cluster = 'CL_NN'
-
-                    self.data_list.append([s206_path, batcam_path, train, horn, position, cluster, data])
+                    s206_audio = np.load(self.root+s206_path)
+                    self.data_list.append([s206_audio, batcam_path, train, horn, position, cluster, data])
 
     def __getitem__(self, idx):
-        s206_path, batcam_path, _, horn, position, _, _ = self.data_list[idx]
-        s206_audio = np.load(self.root+s206_path)
+        s206_audio, batcam_path, _, horn, position, _, _ = self.data_list[idx]
         # s206_audio = TdmsFile(self.root + s206_path)
         # batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
         s206 = PreProcess(s206_audio)
