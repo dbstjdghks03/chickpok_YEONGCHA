@@ -77,7 +77,7 @@ class PreProcess:
             n_mfcc=10,
             melkwargs={
                 "n_fft": 640,
-                "hop_length": 256,
+                "hop_length": 275,
                 "center": True,  # default behavior in librosa, adjust if needed
             }
         )(y)
@@ -97,7 +97,7 @@ class PreProcess:
         specgram = torchaudio.transforms.Spectrogram(
             n_fft=640,
             win_length=640,
-            hop_length=256,
+            hop_length=275,
             power=None  # To get complex output, not magnitude squared
         )(x)
 
@@ -111,7 +111,7 @@ class PreProcess:
     def get_sc(self):
         y = torch.tensor(self.y).unsqueeze(0)
         print(y.shape)
-        cent = torchaudio.functional.spectral_centroid(waveform=y, sample_rate=22050, pad=0, window=torch.hann_window(640), n_fft=640, win_length=640, hop_length=256)
+        cent = torchaudio.functional.spectral_centroid(waveform=y, sample_rate=22050, pad=0, window=torch.hann_window(640), n_fft=640, win_length=640, hop_length=275)
 
         return cent.reshape(-1, 1)
 
