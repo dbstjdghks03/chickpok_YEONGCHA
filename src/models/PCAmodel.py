@@ -18,8 +18,8 @@ class PCAModel(nn.Module):
 
     def forward(self, mfcc, sc):
         res = self.Resnet(mfcc)
-        sc = sc.squeeze()
-
+        # sc = sc.squeeze()
+        print(sc.shape)
         res_reduced = self.PCA(res)
 
         sc_reduced = self.PCA(sc)
