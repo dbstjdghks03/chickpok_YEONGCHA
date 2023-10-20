@@ -112,7 +112,7 @@ class PreProcess:
         return self.getrgb(log_spectrogram, log_spectrogram.min(), log_spectrogram.max())
 
     def get_sc(self):
-        y = torch.tensor(self.y).unsqueeze(0)
+        y = self.y.unsqueeze(0)
         y = y + torch.tensor(1e-5)
         cent = self.spectral_centroid(y)
 

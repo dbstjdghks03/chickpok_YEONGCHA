@@ -132,29 +132,29 @@ class RandomAdditivePinkGN(AugBasic):
         return sample
 
 
-class RandomAdditiveVioletGN(AugBasic):
-    def __init__(self, p=0.5, snr_db=35):
-        self.snr_db = snr_db
-        self.min_snr_db = 30
-        self.p = p
-
-    def __call__(self, sample):
-        if random.random() < self.p:
-            s = torch.sqrt(torch.mean(sample ** 2))
-            n = sample.shape[-1]
-            w = torch.randn(n)
-            nn = n // 2 + 1
-            k = torch.arange(1, nn + 1, 1).float()
-            W = torch.fft.fft(w)
-            W = W[:nn] * k
-            W = torch.cat((W, W.flip(dims=(-1,))[1:-1].conj()), dim=-1)
-            w = torch.fft.ifft(W).real
-            w.add_(w.mean()).div_(w.std())
-            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
-            sgm = s * 10 ** (-snr_db / 20.)
-            sample.add_(w.mul_(sgm))
-        return sample
-
+# class RandomAdditiveVioletGN(AugBasic):
+#     def __init__(self, p=0.5, snr_db=35):
+#         self.snr_db = snr_db
+#         self.min_snr_db = 30
+#         self.p = p
+#
+#     def __call__(self, sample):
+#         if random.random() < self.p:
+#             s = torch.sqrt(torch.mean(sample ** 2))
+#             n = sample.shape[-1]
+#             w = torch.randn(n)
+#             nn = n // 2 + 1
+#             k = torch.arange(1, nn + 1, 1).float()
+#             W = torch.fft.fft(w)
+#             W = W[:nn] * k
+#             W = torch.cat((W, W.flip(dims=(-1,))[1:-1].conj()), dim=-1)
+#             w = torch.fft.ifft(W).real
+#             w.add_(w.mean()).div_(w.std())
+#             snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+#             sgm = s * 10 ** (-snr_db / 20.)
+#             sample.add_(w.mul_(sgm))
+#         return sample
+#
 
 class RandomAdditiveRedGN(AugBasic):
     def __init__(self, p=0.5, snr_db=35):

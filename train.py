@@ -38,7 +38,7 @@ batch = args.batch
 num_workers = args.num_workers
 n_components = args.n_components
 lr = args.lr
-transform = ["amp", "flip", "neg", "awgn", "abgn", "argn", "avgn", "apgn", "sine", "ampsegment", "aun", "phn", "fshift"]
+transform = ["amp", "flip", "neg", "sine", "ampsegment", "aun", "phn", "fshift"]
 
 dataset = YoungDataSet(root=root, is_npy=True, transform = transform)
 data_list = dataset.data_list
