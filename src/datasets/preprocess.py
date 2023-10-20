@@ -270,7 +270,7 @@ class RandomAmpSegment(AugBasic):
                 self.max_len = sample.shape[-1] // 10
             idx = random.randint(0, self.max_len)
             amp = torch.FloatTensor(1).uniform_(self.low, self.high)
-            sample[idx: idx + self.max_len]@(amp)
+            sample[idx: idx + self.max_len].mul_(amp)
         return sample
 
 
