@@ -38,12 +38,14 @@ batch = args.batch
 num_workers = args.num_workers
 n_components = args.n_components
 lr = args.lr
+transform = ["amp", "flip", "neg", "awgn", "abgn", "argn", "avgn", "apgn", "sine", "ampsegment", "aun", "phn", "fshift"]
 
-dataset = YoungDataSet(root=root, is_npy=True)
+dataset = YoungDataSet(root=root, is_npy=True, transform = transform)
 data_list = dataset.data_list
 
-skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=42)
 MSELoss = nn.MSELoss()
+
 if __name__ == '__main__':
     model = PCAModel(n_components).to(device)
     # optimizer로는 Adam 사용
