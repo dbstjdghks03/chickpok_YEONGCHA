@@ -160,7 +160,7 @@ class YoungDataSet(Dataset):
         s206_audio, batcam_path, _, horn, position, _, _ = self.data_list[idx]
         # s206_audio = TdmsFile(self.root + s206_path)
         # batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
-        s206 = AudioAugs(self.transforms, 22050)
+        s206_audio = AudioAugs(self.transform, 22050)(s206_audio)
         s206 = PreProcess(s206_audio)
 
         return torch.tensor(s206.get_stft()), torch.tensor(s206.get_mfcc()), s206.get_sc(), horn, torch.tensor(position)
