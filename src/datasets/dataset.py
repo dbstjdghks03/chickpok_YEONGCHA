@@ -9,7 +9,7 @@ import torchaudio
 import torch
 import librosa
 from torchaudio.transforms import SpectralCentroid
-from preprocess import AudioAugs
+from src.datasets.preprocess import AudioAugs
 __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 
 
