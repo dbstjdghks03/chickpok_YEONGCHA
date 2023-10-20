@@ -4,7 +4,7 @@ import random
 import scipy
 import torch
 import torch.nn.functional as F
-
+from src.datasets.utils.helper_funcs import AugBasic
 
 # class change_pitch(object):
 #     def __init__(self, sampling_rate, pitch_factor) -> None:
@@ -18,7 +18,7 @@ import torch.nn.functional as F
 #         return librosa.effects.pitch_shift(data, self.sampling_rate, self.pitch_factor)
 
 
-class RandomLPHPFilter(object):
+class RandomLPHPFilter(AugBasic):
     def __init__(self, fs, p=0.5, fc_lp=None, fc_hp=None):
         self.p = p
         self.fs = fs
@@ -43,7 +43,7 @@ class RandomLPHPFilter(object):
         return sample
 
 
-class RandomAmp(object):
+class RandomAmp(AugBasic):
     def __init__(self, low, high, p=0.5):
         self.low = low
         self.high = high
@@ -56,7 +56,7 @@ class RandomAmp(object):
         return sample
 
 
-class RandomFlip(object):
+class RandomFlip(AugBasic):
     def __init__(self, p=0.5):
         self.p = p
 
@@ -66,7 +66,7 @@ class RandomFlip(object):
         return sample
 
 
-class RandomAdd180Phase(object):
+class RandomAdd180Phase(AugBasic):
     def __init__(self, p=0.5):
         self.p = p
 
@@ -76,7 +76,7 @@ class RandomAdd180Phase(object):
         return sample
 
 
-class RandomAdditiveWhiteGN(object):
+class RandomAdditiveWhiteGN(AugBasic):
     def __init__(self, p=0.5, snr_db=30):
         self.snr_db = snr_db
         self.min_snr_db = 30
@@ -92,7 +92,7 @@ class RandomAdditiveWhiteGN(object):
         return sample
 
 
-class RandomAdditiveUN(object):
+class RandomAdditiveUN(AugBasic):
     def __init__(self, snr_db=35, p=0.5):
         self.snr_db = snr_db
         self.min_snr_db = 30
@@ -108,7 +108,7 @@ class RandomAdditiveUN(object):
         return sample
 
 
-class RandomAdditivePinkGN(object):
+class RandomAdditivePinkGN(AugBasic):
     def __init__(self, snr_db=35, p=0.5):
         self.snr_db = snr_db
         self.min_snr_db = 30
@@ -132,7 +132,7 @@ class RandomAdditivePinkGN(object):
         return sample
 
 
-class RandomAdditiveVioletGN(object):
+class RandomAdditiveVioletGN(AugBasic):
     def __init__(self, p=0.5, snr_db=35):
         self.snr_db = snr_db
         self.min_snr_db = 30
@@ -156,7 +156,7 @@ class RandomAdditiveVioletGN(object):
         return sample
 
 
-class RandomAdditiveRedGN(object):
+class RandomAdditiveRedGN(AugBasic):
     def __init__(self, p=0.5, snr_db=35):
         self.snr_db = snr_db
         self.min_snr_db = 30
@@ -180,7 +180,7 @@ class RandomAdditiveRedGN(object):
         return sample
 
 
-class RandomAdditiveBlueGN(object):
+class RandomAdditiveBlueGN(AugBasic):
     def __init__(self, p=0.5, snr_db=35):
         self.snr_db = snr_db
         self.min_snr_db = 30
@@ -204,7 +204,7 @@ class RandomAdditiveBlueGN(object):
         return sample
 
 
-class RandomFreqShift(object):
+class RandomFreqShift(AugBasic):
     def __init__(self, sgm, fs, p=0.5):
         super().__init__(fs=fs)
         self.sgm = sgm
@@ -235,7 +235,7 @@ class RandomFreqShift(object):
         return sample
 
 
-class RandomAddSine(object):
+class RandomAddSine(AugBasic):
     def __init__(self, fs, snr_db=35, max_freq=50, p=0.5):
         self.snr_db = snr_db
         self.max_freq = max_freq
@@ -257,7 +257,7 @@ class RandomAddSine(object):
         return sample
 
 
-class RandomAmpSegment(object):
+class RandomAmpSegment(AugBasic):
     def __init__(self, low, high, max_len=None, p=0.5):
         self.low = low
         self.high = high
@@ -274,7 +274,7 @@ class RandomAmpSegment(object):
         return sample
 
 
-class RandomPhNoise(object):
+class RandomPhNoise(AugBasic):
     def __init__(self, fs, sgm=0.01, p=0.5):
         super().__init__(fs=fs)
         self.sgm = sgm
