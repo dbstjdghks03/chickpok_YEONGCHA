@@ -30,6 +30,7 @@ class PCAModel(nn.Module):
             res_reduced = res_reduced.unsqueeze(1)
         if len(sc_reduced.shape) == 1:
             sc_reduced = sc_reduced.unsqueeze(1)
+        print(len(res_reduced.shape), len(sc_reduced.shape))
 
         combined_feat = torch.concat((res_reduced, sc_reduced), -1)
         out = self.SVM(combined_feat)
