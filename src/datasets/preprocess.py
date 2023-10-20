@@ -303,7 +303,7 @@ class RandomPhNoise(AugBasic):
         return sample
 
 
-class AudioAugs(object):
+class AudioAugs():
     def __init__(self, k_augs, fs, p=0.5, snr_db=30):
         self.noise_vec = ['awgn', 'abgn', 'apgn', 'argn', 'avgn', 'aun', 'phn', 'sine']
         augs = {}
@@ -349,4 +349,5 @@ class AudioAugs(object):
             augs.append(augs_noise[i])
         for aug in augs:
             sample = self.augs[aug](sample)
+        print(sample.shape)
         return sample
