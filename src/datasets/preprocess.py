@@ -349,5 +349,5 @@ class AudioAugs():
             augs.append(augs_noise[i])
         for aug in augs:
             sample = self.augs[aug](sample)
-        print(sample.shape)
+        sample = F.pad(sample, (0, 638825-sample.size(0)))
         return sample
