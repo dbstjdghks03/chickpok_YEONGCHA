@@ -31,7 +31,6 @@ class PCAModel(nn.Module):
         sc_reduced = sc_reduced.view(sc_reduced.size(0), -1)
 
 
-        print(len(res_reduced.shape), len(sc_reduced.shape))
 
         combined_feat = torch.concat((res_reduced, sc_reduced), -1)
         out = self.SVM(combined_feat)
@@ -63,7 +62,6 @@ class PCA(nn.Module):
         std = torch.std(x, dim=0) + 1e-5
         x = (x - mean) / std
 
-        print(x.shape)
         try:
             U, S, Vt = torch.linalg.svd(x)
         except Exception as e:

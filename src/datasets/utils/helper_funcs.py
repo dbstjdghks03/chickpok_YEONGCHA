@@ -55,7 +55,6 @@ def measure_inference_time(model, input, repetitions=300, use_16b=False):
     ender = torch.cuda.Event(enable_timing=True)
     # repetitions = 300
     timings = np.zeros((repetitions, 1))
-    print(input.shape)
     if use_16b:
         input = input.half()
         model_.half()
