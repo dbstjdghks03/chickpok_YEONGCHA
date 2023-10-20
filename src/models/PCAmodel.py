@@ -18,18 +18,19 @@ class PCAModel(nn.Module):
 
     def forward(self, mfcc, sc):
         res = self.Resnet(mfcc)
-        # sc = sc.squeeze()
-        print(sc.shape)
+        sc = sc.squeeze()
+
+        if len(res.shape) == 1:
+            res = res.unsqueeze(1)
+        if len(sc.shape) == 1:
+            sc = sc.unsqueeze(1)
         res_reduced = self.PCA(res)
 
         sc_reduced = self.PCA(sc)
         res_reduced= res_reduced.view(res_reduced.size(0), -1)
         sc_reduced = sc_reduced.view(sc_reduced.size(0), -1)
 
-        if len(res_reduced.shape) == 1:
-            res_reduced = res_reduced.unsqueeze(1)
-        if len(sc_reduced.shape) == 1:
-            sc_reduced = sc_reduced.unsqueeze(1)
+
         print(len(res_reduced.shape), len(sc_reduced.shape))
 
         combined_feat = torch.concat((res_reduced, sc_reduced), -1)
