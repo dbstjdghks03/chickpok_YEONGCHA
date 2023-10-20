@@ -21,9 +21,9 @@ class PCAModel(nn.Module):
         sc = sc.squeeze()
 
         if len(res.shape) == 1:
-            res = res.unsqueeze(1)
+            res = res.unsqueeze(0)
         if len(sc.shape) == 1:
-            sc = sc.unsqueeze(1)
+            sc = sc.unsqueeze(0)
         res_reduced = self.PCA(res)
 
         sc_reduced = self.PCA(sc)
