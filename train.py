@@ -40,9 +40,6 @@ num_workers = args.num_workers
 n_components = args.n_components
 lr = args.lr
 
-
-
-
 if __name__ == '__main__':
     skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=42)
     MSELoss = nn.MSELoss()
@@ -98,7 +95,7 @@ if __name__ == '__main__':
                 epoch_test_loss += loss(output, horn, position).item()
 
                 predictions = torch.tensor([1 if out[0] > 0 else -1 for out in output]).to(device)
-                print(predictions, horn)
+                print(predictions, horn, predictinos == horn)
                 correct_predictions = (predictions == horn).float().sum()
                 # position_mse += MSELoss(output[:, 1], position)
                 test_len += position.shape[0]
