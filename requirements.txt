@@ -27,6 +27,8 @@ sympy==1.12
 threadpoolctl==3.2.0
 torch==2.0.1
 torchvision==0.15.2
+torchaudio
 typing_extensions==4.8.0
 urllib3==2.0.5
 zipp==3.17.0
+nptdms
