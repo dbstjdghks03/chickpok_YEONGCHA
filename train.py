@@ -29,6 +29,8 @@ parser.add_argument('--batch', type=int, default=16)
 parser.add_argument('--num_workers', type=int, default=os.cpu_count())
 parser.add_argument('--n_components', type=int, default=30)
 parser.add_argument('--lr', type=float, default=1e-5)
+parser.add_argument('--alpha', type=float, default=1e-3)
+parser.add_argument('--beta', type=float, default=1)
 
 args = parser.parse_args()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -38,6 +40,8 @@ epochs = args.epochs
 batch = args.batch
 num_workers = args.num_workers
 n_components = args.n_components
+alpha = args.alpha
+beta = args.beta
 lr = args.lr
 
 if __name__ == '__main__':
@@ -76,7 +80,7 @@ if __name__ == '__main__':
                     device).float(), horn.to(device), position.to(device).float()
                 optimizer.zero_grad()
                 output = model(mfcc, sc)
-                train_loss = loss(output, horn, position)
+                train_loss = loss(output, horn, position, alpha, beta)
                 epoch_train_loss += train_loss.item()
                 train_loss.backward()
                 optimizer.step()
