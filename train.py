@@ -75,8 +75,8 @@ if __name__ == '__main__':
             print(f"fold {fold}: {epoch}th epoch starting.")
             epoch_test_loss = 0
             epoch_train_loss = 0
-            for i, (stft, mfcc, sc, horn, position) in enumerate(train_loader):
-                stft, mfcc, sc, horn, position = stft.to(device).float(), mfcc.to(device).float(), sc.to(
+            for i, (mfcc, sc, horn, position) in enumerate(train_loader):
+                mfcc, sc, horn, position = mfcc.to(device).float(), sc.to(
                     device).float(), horn.to(device), position.to(device).float()
                 optimizer.zero_grad()
                 output = model(mfcc, sc)
@@ -91,8 +91,8 @@ if __name__ == '__main__':
             model.eval()
             position_mse = 0
             test_len = 0
-            for i, (stft, mfcc, sc, horn, position) in enumerate(test_loader):
-                stft, mfcc, sc, horn, position = stft.to(device).float(), mfcc.to(device).float(), sc.to(
+            for i, (mfcc, sc, horn, position) in enumerate(test_loader):
+                mfcc, sc, horn, position = mfcc.to(device).float(), sc.to(
                     device).float(), horn.to(device), position.to(device).float()
                 output = model(mfcc, sc)
                 epoch_test_loss += loss(output, horn, position).item()
