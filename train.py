@@ -13,7 +13,7 @@ import random
 import numpy as np
 
 seed = 42
-loss = horn_loss
+# loss = horn_loss
 
 random.seed(seed)
 np.random.seed(seed)
@@ -95,7 +95,7 @@ if __name__ == '__main__':
                 predictions = torch.tensor([1 if out[0] > 0 else -1 for out in output]).to(device)
                 print(predictions, horn, predictions == horn)
                 correct_predictions += (predictions == horn).float().sum()
-                # position_mse += MSELoss(output[:, 1], position)
+                position_mse += MSELoss(output[:, 1], position)
                 test_len += position.shape[0]
 
             accuracy = correct_predictions / test_len
