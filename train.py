@@ -88,6 +88,7 @@ if __name__ == '__main__':
             model.eval()
             position_mse = 0
             test_len = 0
+            correct_predictions = 0
             for i, (mfcc, sc, horn, position) in enumerate(test_loader):
                 mfcc, sc, horn, position = mfcc.to(device).float(), sc.to(
                     device).float(), horn.to(device), position.to(device).float()
@@ -96,7 +97,7 @@ if __name__ == '__main__':
 
                 predictions = torch.tensor([1 if out[0] > 0 else -1 for out in output]).to(device)
                 print(predictions, horn, predictions == horn)
-                correct_predictions = (predictions == horn).float().sum()
+                correct_predictions += (predictions == horn).float().sum()
                 # position_mse += MSELoss(output[:, 1], position)
                 test_len += position.shape[0]
 
