@@ -98,6 +98,7 @@ if __name__ == '__main__':
                 epoch_test_loss += loss(output, horn, position).item()
 
                 predictions = torch.tensor([-1 if out[0] > 0 else 1 for out in output]).to(device)
+                print(predictions, horn)
                 correct_predictions = (predictions == horn).float().sum()
                 # position_mse += MSELoss(output[:, 1], position)
                 test_len += position.shape[0]
