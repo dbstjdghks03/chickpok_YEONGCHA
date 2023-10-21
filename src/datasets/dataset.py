@@ -10,6 +10,7 @@ import torch
 import librosa
 from torchaudio.transforms import SpectralCentroid
 from src.datasets.preprocess import AudioAugs
+
 __all__ = ['YoungDataLoader', 'TrainDataSet', 'FERTestDataSet']
 
 
@@ -53,7 +54,6 @@ class PreProcess:
     def __init__(self, tdms_file):
         self.y = tdms_file
         self.spectral_centroid = SpectralCentroid(22050)
-
 
     def getrgb(self, amplitude, min_amplitude=0, max_amplitude=10):
         # 진폭값을 [0, 1] 범위로 정규화
@@ -153,14 +153,14 @@ class YoungDataSet(Dataset):
                             cluster = 'CL_HN'
                         else:
                             cluster = 'CL_NN'
-                    s206_audio = np.load(self.root+s206_path)
+                    s206_audio = np.load(self.root + s206_path)
                     self.data_list.append([s206_audio, batcam_path, train, horn, position, cluster, data])
 
     def __getitem__(self, idx):
         s206_audio, batcam_path, _, horn, position, _, _ = self.data_list[idx]
         # s206_audio = TdmsFile(self.root + s206_path)
         # batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
-        s206 = AudioAugs(self.transforms, 22050)
+        # s206 = AudioAugs(self.transforms, 22050)
         s206 = PreProcess(s206_audio)
 
         return torch.tensor(s206.get_stft()), torch.tensor(s206.get_mfcc()), s206.get_sc(), horn, torch.tensor(position)

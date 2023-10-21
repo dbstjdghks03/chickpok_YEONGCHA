@@ -11,6 +11,7 @@ import torch.nn as nn
 import os
 import random
 import numpy as np
+
 seed = 42
 loss = horn_loss
 
@@ -38,25 +39,33 @@ batch = args.batch
 num_workers = args.num_workers
 n_components = args.n_components
 lr = args.lr
-transform = ["amp", "flip", "neg", "awgn", "abgn", "argn", "avgn", "apgn", "sine", "ampsegment", "aun", "phn", "fshift"]
 
-dataset = YoungDataSet(root=root, is_npy=True, transform = transform)
-data_list = dataset.data_list
 
-skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=42)
-MSELoss = nn.MSELoss()
+
 
 if __name__ == '__main__':
+    skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=42)
+    MSELoss = nn.MSELoss()
+
     model = PCAModel(n_components).to(device)
     # optimizer로는 Adam 사용
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     valid_best = 99999999
+
+    transform = ["amp", "flip", "neg", "awgn", "abgn", "argn", "avgn", "apgn", "sine", "ampsegment", "aun", "phn",
+                 "fshift"]
+
+    train_dataset = YoungDataSet(root=root, is_npy=True, transform=transform)
+    test_dataset = YoungDataSet(root=root, is_npy=True, transform=None)
+    data_list = train_dataset.data_list
+
     for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[5] for item in data_list])):
-        train_set = torch.utils.data.Subset(dataset, train_indices)
-        test_set = torch.utils.data.Subset(dataset, test_indices)
-        train_loader = DataLoader(train_set, batch_size=batch, shuffle=True, num_workers=num_workers)
-        test_loader = DataLoader(test_set, batch_size=batch, shuffle=False, num_workers=num_workers)
+        train_set = torch.utils.data.Subset(train_dataset, train_indices)
+        test_set = torch.utils.data.Subset(test_dataset, test_indices)
+
+        train_loader = DataLoader(train_set, batch_size=batch, shuffle=True, num_workers=num_workers, pin_memory=True)
+        test_loader = DataLoader(test_set, batch_size=batch, shuffle=False, num_workers=num_workers, pin_memory=True)
 
         train_losses = []
         test_losses = []
@@ -85,7 +94,7 @@ if __name__ == '__main__':
                 output = model(mfcc, sc)
                 epoch_test_loss += loss(output, horn, position).item()
 
-                predictions = torch.tensor([-1 if 1 - out[0] > 0 else 1 for out in output]).to(device)
+                predictions = torch.tensor([-1 if 1 - out[0]*horn > 0 else 1 for out in output]).to(device)
                 correct_predictions = (predictions == horn).float().sum()
                 # position_mse += MSELoss(output[:, 1], position)
                 test_len += position.shape[0]
@@ -107,4 +116,3 @@ if __name__ == '__main__':
     plt.plot(train_losses, label="train_loss")
     plt.legend()
     plt.show()
-
