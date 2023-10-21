@@ -107,7 +107,7 @@ if __name__ == '__main__':
             print(f'train_loss: {epoch_train_loss/train_len}')
             print('[Test set] Average loss: {:.4f}, Horn Accuracy: {}/{} ({:.2f}%), Position MSE: {}\n'.format(
                 epoch_test_loss / test_len, correct_predictions, test_len,
-                accuracy, position_mse))
+                accuracy, position_mse/test_len))
 
             train_losses.append(epoch_train_loss)
             test_losses.append(epoch_test_loss)
