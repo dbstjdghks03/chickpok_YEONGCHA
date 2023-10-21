@@ -109,9 +109,8 @@ if __name__ == '__main__':
 
             train_losses.append(epoch_train_loss)
             test_losses.append(epoch_test_loss)
-            if valid_best > epoch_test_loss:
-                valid_best = epoch_test_loss
-                torch.save(model.state_dict(), 'valid_best_model.pt')
+
+    torch.save(model.state_dict(), 'model.pt')
 
     plt.plot(test_losses, label="test_loss")
     plt.plot(train_losses, label="train_loss")
