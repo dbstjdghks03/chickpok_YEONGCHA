@@ -10,8 +10,8 @@ class PCAModel(nn.Module):
         super(PCAModel, self).__init__()
         self.Resnet = Resnet()
 
-        # self.SCLayer = nn.Sequential(nn.Linear(2496, n_components))  # Set out_features to 30
-        # self.ResLayer = nn.Sequential(nn.Linear(2048, n_components))  # Set out_features to 30
+        self.SCLayer = nn.Sequential(nn.Linear(2496, n_components))  # Set out_features to 30
+        self.ResLayer = nn.Sequential(nn.Linear(2048, n_components))  # Set out_features to 30
 
         self.PCA = PCA(n_components=n_components)
         self.SVM = nn.Linear(2 * n_components, 1)
@@ -20,12 +20,12 @@ class PCAModel(nn.Module):
         res = self.Resnet(mfcc)
         sc = sc.squeeze()
         #
-        # res_reduced = self.ResLayer(res)
-        #
-        # sc_reduced = self.SCLayer(sc)
+        res_reduced = self.ResLayer(res)
 
-        res_reduced = self.PCA(res)
-        sc_reduced = self.PCA(sc)
+        sc_reduced = self.SCLayer(sc)
+
+        # res_reduced = self.PCA(res)
+        # sc_reduced = self.PCA(sc)
         res_reduced = res_reduced.view(res_reduced.size(0), -1)
         sc_reduced = sc_reduced.view(sc_reduced.size(0), -1)
 

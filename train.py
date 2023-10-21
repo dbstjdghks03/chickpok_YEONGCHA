@@ -48,8 +48,6 @@ if __name__ == '__main__':
     # optimizer로는 Adam 사용
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    valid_best = 99999999
-
     transform = ["amp", "flip", "neg", "awgn", "abgn", "argn", "avgn", "apgn", "sine", "ampsegment", "aun", "phn",
                  "fshift"]
 
