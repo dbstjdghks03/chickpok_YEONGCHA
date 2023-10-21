@@ -28,7 +28,7 @@ parser.add_argument('--root', type=str)
 parser.add_argument('--batch', type=int, default=16)
 parser.add_argument('--num_workers', type=int, default=os.cpu_count())
 parser.add_argument('--n_components', type=int, default=30)
-parser.add_argument('--lr', type=float, default=1e-5)
+parser.add_argument('--lr', type=float, default=5e-5)
 
 args = parser.parse_args()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -41,7 +41,7 @@ n_components = args.n_components
 lr = args.lr
 
 if __name__ == '__main__':
-    skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=42)
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     MSELoss = nn.MSELoss()
 
     model = PCAModel(n_components).to(device)
@@ -66,6 +66,8 @@ if __name__ == '__main__':
 
         train_losses = []
         test_losses = []
+
+        fold_accuracy = []
 
         for epoch in range(epochs):
             model.train()
@@ -99,6 +101,8 @@ if __name__ == '__main__':
                 correct_predictions += (predictions == horn).float().sum()
                 # position_mse += MSELoss(output[:, 1], position)
                 test_len += position.shape[0]
+            if epoch == len(epochs):
+                fold_accuracy.append(accuracy)
 
             accuracy = correct_predictions / test_len
 
@@ -112,7 +116,8 @@ if __name__ == '__main__':
             if valid_best > epoch_test_loss:
                 valid_best = epoch_test_loss
                 torch.save(model.state_dict(), 'valid_best_model.pt')
-
+    model_accuracy = np.mean(fold_accuracy)
+    print(f"model's accuracy: {model_accuracy}")
     plt.plot(test_losses, label="test_loss")
     plt.plot(train_losses, label="train_loss")
     plt.legend()
