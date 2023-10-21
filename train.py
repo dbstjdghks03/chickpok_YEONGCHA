@@ -72,18 +72,17 @@ if __name__ == '__main__':
             print(f"fold {fold}: {epoch}th epoch starting.")
             epoch_test_loss = 0
             epoch_train_loss = 0
+            train_len = 0
             for i, (mfcc, sc, horn, position) in enumerate(train_loader):
                 mfcc, sc, horn, position = mfcc.to(device).float(), sc.to(
                     device).float(), horn.to(device), position.to(device).float()
                 optimizer.zero_grad()
                 output = model(mfcc, sc)
-                print('output shape', output.shape)
-                print('output value', output)
-                print('horn value', horn)
                 train_loss = loss(output, horn, position)
                 epoch_train_loss += train_loss.item()
                 train_loss.backward()
                 optimizer.step()
+                train_len += position.shape[0]
 
             model.eval()
             position_mse = 0
@@ -103,7 +102,7 @@ if __name__ == '__main__':
 
             accuracy = correct_predictions / test_len
 
-            print(f'train_loss: {epoch_train_loss}')
+            print(f'train_loss: {epoch_train_loss/train_len}')
             print('[Test set] Average loss: {:.4f}, Horn Accuracy: {}/{} ({:.2f}%), Position MSE: {}\n'.format(
                 epoch_test_loss / test_len, correct_predictions, test_len,
                 accuracy, position_mse))
