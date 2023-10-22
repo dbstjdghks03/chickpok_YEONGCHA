@@ -55,7 +55,7 @@ if __name__ == '__main__':
             'Predicted_Danger': danger.cpu().detach().numpy(),
             'Predicted_Position': predicted_position.cpu().detach().numpy(),
             'label_Position': position.cpu().detach().numpy(),  # assuming the first dimension of output is what you want
-            'label_Horn': horn.cpu().numpy()
+            'label_Horn': horn.cpu().detach().numpy()
         }
         df = df.append(pd.DataFrame(batch_data), ignore_index=True)
         df.to_csv('result.csv')
