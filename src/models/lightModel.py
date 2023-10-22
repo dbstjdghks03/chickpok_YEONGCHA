@@ -70,7 +70,7 @@ class PCALightModel(L.LightningModule):
     def validation_step(self, batch, batch_idx):
         mfcc, sc, horn, position = batch
         output = self.model(mfcc, sc)
-        predictions = torch.tensor([1 if out[0] > 0 else -1 for out in output])
+        predictions = torch.tensor([1 if out[0] > 0 else 0 for out in output])
         label = torch.tensor([1 if out == 1 else 0 for out in horn])
         test_acc = self.valid_acc(predictions, label)
         test_loss = self.loss(output, horn, position, self.alpha, self.beta)
