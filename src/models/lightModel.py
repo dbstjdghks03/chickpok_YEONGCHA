@@ -8,6 +8,7 @@ import torch.nn as nn
 import time
 import torch
 from src.models.PCAmodel import PCAModel
+import torchmetrics
 
 
 class PCALightModel(L.LightningModule):
