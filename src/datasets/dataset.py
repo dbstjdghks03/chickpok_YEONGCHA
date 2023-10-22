@@ -107,6 +107,7 @@ class PreProcess:
             normalized=False,
             return_complex=False
         )
+        print(stft.shape)
         return self.getrgb(stft, stft.min(), stft.max())
 
     def get_sc(self):
