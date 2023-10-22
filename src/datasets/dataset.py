@@ -159,12 +159,14 @@ class YoungDataSet(Dataset):
 
                     try:
                         s206_audio = np.load(self.root + s206_path)
+
                     except:
                         continue
                     self.data_list.append([s206_audio, batcam_path, train, horn, position, cluster, data])
 
     def __getitem__(self, idx):
         s206_audio, batcam_path, _, horn, position, _, _ = self.data_list[idx]
+        print(s206_audio.shape)
         # s206_audio = TdmsFile(self.root + s206_path)
         # batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
         # s206 = AudioAugs(self.transforms, 22050)
