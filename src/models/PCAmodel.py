@@ -26,7 +26,7 @@ class PCAModel(nn.Module):
         #     nn.LeakyReLU(0.2, True),
         # )
         self.PCA = PCA(n_components=n_components)
-        self.SVM = nn.Linear(2 * n_components, 2)
+        self.SVM = nn.Linear(512, 2)
 
         # nf = 32, clip_length = None, embed_dim = 128, n_layers = 4, nhead = 8, factors = [4, 4, 4, 4],
         # n_classes = None, dim_feedforward = 512
@@ -38,6 +38,8 @@ class PCAModel(nn.Module):
             nf *= 2
             if i % 2 == 0:
                 model += [ResBlock1dTF(dim=nf, dilation=1, kernel_size=15)]
+
+        model.append(nn.AdaptiveAvgPool2d((None, 1)))
         self.down = nn.Sequential(*model)
 
         # factors = [2, 2]
@@ -60,7 +62,7 @@ class PCAModel(nn.Module):
         combined_feat = torch.concat((res, sc), -1)
 
         start = self.StartLayer(combined_feat)
-        down = self.down(start)
+        down = self.down(start).squeeze()
         # res_reduced = self.MFCCLayer(res)
         # sc_reduced = self.SCLayer(sc)
         # print(res_reduced.shape, sc_reduced.shape)
@@ -69,7 +71,7 @@ class PCAModel(nn.Module):
         # res_reduced = res_reduced.view(res_reduced.size(0), -1)
         # sc_reduced = sc_reduced.view(sc_reduced.size(0), -1)
         print(down.shape)
-        combined_feat = torch.concat((res_reduced, sc_reduced), -1)
+        # combined_feat = torch.concat((res_reduced, sc_reduced), -1)
         out = self.SVM(combined_feat)
 
         return out
