@@ -98,19 +98,15 @@ class PreProcess:
 
         if not isinstance(x, torch.Tensor):
             x = torch.tensor(x)
-        specgram = torchaudio.transforms.Spectrogram(
+
+        stft = torch.stft(
+            x,
             n_fft=2048,
-            win_length=1600,
             hop_length=275,
-            power=None  # To get complex output, not magnitude squared
-        )(x)
-
-        # Compute magnitude
-        magnitude = specgram.abs()
-
-        # Convert to dB scale
-        log_spectrogram = torchaudio.transforms.AmplitudeToDB()(magnitude)
-        return self.getrgb(log_spectrogram, log_spectrogram.min(), log_spectrogram.max())
+            win_length=1600,
+            normalized=False,
+        )
+        return self.getrgb(stft, stft.min(), stft.max())
 
     def get_sc(self):
         y = torch.tensor(self.y).unsqueeze(0)
