@@ -34,7 +34,7 @@ class PCAModel(nn.Module):
         sc = sc.squeeze()
 
         res_reduced = self.ResLayer(res)
-
+        print(res_reduced.shape)
         sc_reduced = self.SCLayer(sc)
         print(res_reduced, sc_reduced)
         # res_reduced = self.PCA(res)
