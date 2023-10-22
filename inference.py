@@ -41,7 +41,6 @@ if __name__ == '__main__':
         mfcc, sc, horn, position = mfcc.to(device).float(), sc.to(
             device).float(), horn.to(device), position.to(device).float()
         output = model(mfcc, sc)
-        epoch_test_loss += loss(output, horn, position).item()
 
         danger = output[:, 0]
         predicted_position = output[:, 1]
