@@ -48,9 +48,7 @@ if __name__ == '__main__':
     skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=42)
     MSELoss = nn.MSELoss()
 
-    model = PCAModel(n_components).to(device)
-    # optimizer로는 Adam 사용
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
 
     transform = ["amp", "flip", "neg", "awgn", "abgn", "argn", "avgn", "apgn", "sine", "ampsegment", "aun", "phn",
                  "fshift"]
@@ -68,6 +66,9 @@ if __name__ == '__main__':
 
         train_losses = []
         test_losses = []
+        model = PCAModel(n_components).to(device)
+        # optimizer로는 Adam 사용
+        optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
         for epoch in range(epochs):
             model.train()
