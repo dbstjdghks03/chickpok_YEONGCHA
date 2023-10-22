@@ -15,6 +15,7 @@ parser.add_argument('--root', type=str, default="dataset")
 
 args = parser.parse_args()
 
+root = args.root
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 n_components = 40
@@ -28,7 +29,7 @@ if __name__ == '__main__':
     test_len = 0
     correct_predictions = 0
 
-    test_dataset = YoungDataSet(root=root, is_npy=True, transform=None)
+    test_dataset = TestYoungDataSet(root=root, is_npy=True, transform=None)
     df = pd.DataFrame(columns=['Predicted_Danger', 'Predicted_Position', 'label_Horn', 'label_Position'])
 
     for i, (mfcc, sc, horn, position) in enumerate(test_loader):
