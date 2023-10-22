@@ -256,7 +256,7 @@ class TestYoungDataSet(Dataset):
 
     def __getitem__(self, idx):
         s206_path, batcam_path, _, horn, position, _, _ = self.data_list[idx]
-        s206_audio, _ = tdms_preprocess(self.root + s206_path)
+        s206_audio = tdms_preprocess(self.root + s206_path)
         s206_audio = s206_audio.squeeze()
         s206 = PreProcess(s206_audio)
         return torch.tensor(s206.get_mfcc()), s206.get_sc(), torch.tensor(horn), torch.tensor(position)
