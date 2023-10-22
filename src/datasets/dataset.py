@@ -69,7 +69,7 @@ class PreProcess:
             flat[i] = [r, g, b]
         arr = np.array(flat).reshape(3, amplitude.shape[0], amplitude.shape[1])
 
-        return arr
+        return torch.tensor(arr).float()
 
     def get_mfcc(self):
         y = torch.tensor(self.y)  # If `self.y` is not already a tensor
@@ -118,7 +118,7 @@ class PreProcess:
         y = y + torch.tensor(1e-5)
         cent = self.spectral_centroid(y)
 
-        return cent.reshape(-1, 1)
+        return cent.reshape(-1, 1).float()
 
 
 class YoungDataSet(Dataset):
