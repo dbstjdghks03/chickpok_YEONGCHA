@@ -120,8 +120,9 @@ class PreProcess:
             }
         )(y)
         # Scaling the MFCC (equivalent to preprocessing.scale in sklearn)
+
         mean = torch.mean(mfcc, dim=1, keepdim=True)
-        std = torch.std(mfcc, dim=1, keepdim=True) + 1e-5
+        std = torch.std(mfcc, dim=1, keepdim=True) + torch.tensor(1e-5)
         mfcc = (mfcc - mean) / std
 
         return self.getrgb(mfcc, mfcc.min(), mfcc.max())
