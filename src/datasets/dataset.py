@@ -100,7 +100,6 @@ class PreProcess:
             x = torch.tensor(x)
         specgram = torchaudio.transforms.Spectrogram(
             n_fft=2048,
-            n_mels=32,
             win_length=1600,
             hop_length=275,
             power=None  # To get complex output, not magnitude squared
