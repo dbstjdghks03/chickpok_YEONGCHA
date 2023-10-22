@@ -199,6 +199,7 @@ class TestYoungDataSet(Dataset):
                     with open(dirpath + '/' + file_name, 'r') as f:
                         data = json.load(f)
                     folder_name = dirpath.split("/")[-1]
+                    print('folder_name', folder_name)
                     s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206', data['title_s206'])
                     batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
                                                data['title_batcam2'])
