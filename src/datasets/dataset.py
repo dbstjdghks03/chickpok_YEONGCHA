@@ -156,7 +156,6 @@ class YoungDataSet(Dataset):
                         else:
                             cluster = 'CL_NN'
 
-
                     try:
                         s206_audio = np.load(self.root + s206_path)
 
@@ -179,6 +178,55 @@ class YoungDataSet(Dataset):
         # return s206_audio, batcam_audio, s206_beam, batcam_beam, label[0], label[1], data
 
         # return self.data[index], self.emotion[index]
+
+    def __len__(self):
+        return self.len
+
+
+class TestYoungDataSet(Dataset):
+    def __init__(self, root, is_npy, transform=None):
+        self.transform = transform
+        self.data_list = []
+        self.root = root
+        for dirpath, dirnames, files in os.walk(root + '/train_json'):
+            print(f'Found directory: {dirpath}')
+            for file_name in files:
+                if file_name.endswith(".json"):
+                    with open(dirpath + '/' + file_name, 'r') as f:
+                        data = json.load(f)
+                    folder_name = dirpath.split("/")[-1]
+                    s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206', data['title_s206'])
+                    if is_npy:
+                        s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206',
+                                                 data['title_s206'].split(".")[0] + ".npy")
+
+                    batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
+                                               data['title_batcam2'])
+                    train = train_to_idx[data['Train']]
+                    horn = class_to_idx[data['Horn']]
+
+                    if horn == -1:
+                        position = int(data['Position'])
+                        if train == 0:
+                            cluster = 'CL_HY'
+                        else:
+                            cluster = 'CL_NY'
+                    else:
+                        position = -1
+                        if train == 0:
+                            cluster = 'CL_HN'
+                        else:
+                            cluster = 'CL_NN'
+
+                    self.data_list.append([s206_path, batcam_path, train, horn, position, cluster, data])
+
+    def __getitem__(self, idx):
+        s206_path, batcam_path, _, horn, position, _, _ = self.data_list[idx]
+        s206_audio = tdms_preprocess(self.root + '/'+s206_path)
+        s206_audio = s206_audio.squeeze()
+        s206 = PreProcess(s206_audio)
+
+        return torch.tensor(s206.get_mfcc()), s206.get_sc(), horn, torch.tensor(position)
 
     def __len__(self):
         return self.len
