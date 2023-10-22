@@ -6,6 +6,7 @@ import argparse
 
 from src.datasets.dataset import YoungDataSet, PreProcess, TestYoungDataSet
 from src.models.PCAmodel import PCAModel
+import pandas as pd
 
 parser = argparse.ArgumentParser()
 
@@ -13,7 +14,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--root', type=str, default="dataset")
 
 args = parser.parse_args()
-
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -29,6 +29,7 @@ if __name__ == '__main__':
     correct_predictions = 0
 
     test_dataset = YoungDataSet(root=root, is_npy=True, transform=None)
+    df = pd.DataFrame(columns=['Predicted_Danger', 'Predicted_Position', 'label_Horn', 'label_Position'])
 
     for i, (mfcc, sc, horn, position) in enumerate(test_loader):
         mfcc, sc, horn, position = mfcc.to(device).float(), sc.to(
@@ -36,10 +37,20 @@ if __name__ == '__main__':
         output = model(mfcc, sc)
         epoch_test_loss += loss(output, horn, position).item()
 
+        danger = output[:, 0]
+        predicted_position = output[:, 1]
+
         predictions = torch.tensor([1 if out[0] > 0 else -1 for out in output]).to(device)
         correct_predictions += (predictions == horn).float().sum()
         position_mse += MSELoss(output[:, 1], position)
         test_len += position.shape[0]
+        batch_data = {
+            'Predicted_Danger': danger.detach().numpy(),
+            'Predicted_Position': predicted_position.detach().numpy(),
+            'Output': output[:, 0].cpu().detach().numpy(),  # assuming the first dimension of output is what you want
+            'Horn': horn.cpu().numpy()
+        }
+        df = df.append(pd.DataFrame(batch_data), ignore_index=True)
 
     accuracy = correct_predictions / test_len
 
@@ -47,5 +58,4 @@ if __name__ == '__main__':
         correct_predictions, test_len,
         accuracy, position_mse / test_len))
 
-
-
+    df.to_csv('result.csv')
