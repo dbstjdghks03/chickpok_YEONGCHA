@@ -44,7 +44,7 @@ class PCALightModel(L.LightningModule):
 
     def training_step(self, batch, batch_idx):
         mfcc, sc, horn, position = batch
-        output = model(mfcc, sc)
+        output = self.model(mfcc, sc)
         train_loss = self.loss(output, horn, position, self.alpha, self.beta)
         self.log("train_loss", train_loss, on_epoch=True, prog_bar=True)
 
@@ -59,7 +59,7 @@ class PCALightModel(L.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         mfcc, sc, horn, position = batch
-        output = model(mfcc, sc)
+        output = self.model(mfcc, sc)
         test_loss = self.loss(output, horn, position, self.alpha, self.beta)
         self.log("test_loss", test_loss, on_epoch=True, prog_bar=True)
 
