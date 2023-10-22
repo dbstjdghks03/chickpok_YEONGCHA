@@ -79,9 +79,11 @@ class PreProcess:
             sample_rate=22050,
             n_mfcc=10,
             melkwargs={
-                "n_fft": 640,
+                "n_fft": 2048,
+                "n_mels": 128,
+                "win_length": 1600,
                 "hop_length": 275,
-                "center": True,  # default behavior in librosa, adjust if needed
+                "center": True  # default behavior in librosa, adjust if needed
             }
         )(y)
 
@@ -98,8 +100,8 @@ class PreProcess:
         if not isinstance(x, torch.Tensor):
             x = torch.tensor(x)
         specgram = torchaudio.transforms.Spectrogram(
-            n_fft=640,
-            win_length=640,
+            n_fft=2048,
+            win_length=1600,
             hop_length=275,
             power=None  # To get complex output, not magnitude squared
         )(x)

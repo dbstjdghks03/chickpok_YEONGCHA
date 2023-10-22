@@ -13,7 +13,7 @@ import random
 import numpy as np
 
 seed = 42
-loss = horn_loss
+# loss = horn_loss
 
 random.seed(seed)
 np.random.seed(seed)
@@ -29,6 +29,8 @@ parser.add_argument('--batch', type=int, default=16)
 parser.add_argument('--num_workers', type=int, default=os.cpu_count())
 parser.add_argument('--n_components', type=int, default=30)
 parser.add_argument('--lr', type=float, default=1e-5)
+parser.add_argument('--alpha', type=float, default=1e-3)
+parser.add_argument('--beta', type=float, default=1)
 
 args = parser.parse_args()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -38,17 +40,15 @@ epochs = args.epochs
 batch = args.batch
 num_workers = args.num_workers
 n_components = args.n_components
+alpha = args.alpha
+beta = args.beta
 lr = args.lr
 
 if __name__ == '__main__':
     skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=42)
     MSELoss = nn.MSELoss()
 
-    model = PCAModel(n_components).to(device)
-    # optimizer로는 Adam 사용
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    valid_best = 99999999
 
     transform = ["amp", "flip", "neg", "awgn", "abgn", "argn", "avgn", "apgn", "sine", "ampsegment", "aun", "phn",
                  "fshift"]
@@ -66,6 +66,9 @@ if __name__ == '__main__':
 
         train_losses = []
         test_losses = []
+        model = PCAModel(n_components).to(device)
+        # optimizer로는 Adam 사용
+        optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
         for epoch in range(epochs):
             model.train()
@@ -78,7 +81,7 @@ if __name__ == '__main__':
                     device).float(), horn.to(device), position.to(device).float()
                 optimizer.zero_grad()
                 output = model(mfcc, sc)
-                train_loss = loss(output, horn, position)
+                train_loss = loss(output, horn, position, alpha, beta)
                 epoch_train_loss += train_loss.item()
                 train_loss.backward()
                 optimizer.step()
@@ -97,7 +100,7 @@ if __name__ == '__main__':
                 predictions = torch.tensor([1 if out[0] > 0 else -1 for out in output]).to(device)
                 print(predictions, horn, predictions == horn)
                 correct_predictions += (predictions == horn).float().sum()
-                # position_mse += MSELoss(output[:, 1], position)
+                position_mse += MSELoss(output[:, 1], position)
                 test_len += position.shape[0]
 
             accuracy = correct_predictions / test_len
@@ -105,13 +108,12 @@ if __name__ == '__main__':
             print(f'train_loss: {epoch_train_loss/train_len}')
             print('[Test set] Average loss: {:.4f}, Horn Accuracy: {}/{} ({:.2f}%), Position MSE: {}\n'.format(
                 epoch_test_loss / test_len, correct_predictions, test_len,
-                accuracy, position_mse))
+                accuracy, position_mse/test_len))
 
             train_losses.append(epoch_train_loss)
             test_losses.append(epoch_test_loss)
-            if valid_best > epoch_test_loss:
-                valid_best = epoch_test_loss
-                torch.save(model.state_dict(), 'valid_best_model.pt')
+
+    torch.save(model.state_dict(), 'model.pt')
 
     plt.plot(test_losses, label="test_loss")
     plt.plot(train_losses, label="train_loss")
