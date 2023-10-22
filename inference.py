@@ -58,7 +58,6 @@ if __name__ == '__main__':
             'label_Horn': horn.cpu().detach().numpy()
         }
         df = df.append(pd.DataFrame(batch_data), ignore_index=True)
-        df.to_csv('result.csv')
 
 
     accuracy = correct_predictions / test_len
