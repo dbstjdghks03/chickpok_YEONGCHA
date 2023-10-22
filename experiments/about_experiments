@@ -1,3 +1,0 @@
-This directory stores the results of different model training runs.
-Each model may have several versions, each corresponding to a unique training run with potentially different hyperparameters or data.
-Although PyTorch Lighting names this directory ".lightining_logs" by default, it is preferred to rename it to make it easier to understand for anyone looking into the project for the first time.
