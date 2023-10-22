@@ -228,8 +228,6 @@ class TestYoungDataSet(Dataset):
 
         return torch.tensor(s206.get_mfcc()), s206.get_sc(), horn, torch.tensor(position)
 
-    def __len__(self):
-        return self.len
 
 
 if __name__ == "__main__":
