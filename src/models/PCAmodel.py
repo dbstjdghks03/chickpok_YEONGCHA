@@ -72,7 +72,7 @@ class PCAModel(nn.Module):
         # sc_reduced = sc_reduced.view(sc_reduced.size(0), -1)
         # print(down.shape)
         # combined_feat = torch.concat((res_reduced, sc_reduced), -1)
-        out = self.SVM(combined_feat)
+        out = self.SVM(down)
 
         return out
 
