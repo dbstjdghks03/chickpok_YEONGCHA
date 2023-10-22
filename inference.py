@@ -7,15 +7,18 @@ import argparse
 from src.datasets.dataset import YoungDataSet, PreProcess, TestYoungDataSet
 from src.models.PCAmodel import PCAModel
 import pandas as pd
+from torch.utils.data import DataLoader
 
 parser = argparse.ArgumentParser()
 
 # 3. parser.add_argument로 받아들일 인수를 추가해나간다.
 parser.add_argument('--root', type=str, default="dataset")
+parser.add_argument('--num_workers', type=int, default=os.cpu_count())
 
 args = parser.parse_args()
 
 root = args.root
+num_workers = args.num_workers
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 n_components = 40
@@ -30,6 +33,8 @@ if __name__ == '__main__':
     correct_predictions = 0
 
     test_dataset = TestYoungDataSet(root=root, is_npy=True, transform=None)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers=num_workers, pin_memory=True)
+
     df = pd.DataFrame(columns=['Predicted_Danger', 'Predicted_Position', 'label_Horn', 'label_Position'])
 
     for i, (mfcc, sc, horn, position) in enumerate(test_loader):
