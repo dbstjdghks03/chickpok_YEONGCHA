@@ -225,7 +225,7 @@ class TestYoungDataSet(Dataset):
         s206_audio, _ = tdms_preprocess(self.root + s206_path)
         s206_audio = s206_audio.squeeze()
         s206 = PreProcess(s206_audio)
-        return torch.tensor(s206.get_mfcc()), s206.get_sc(), horn, torch.tensor(position)
+        return torch.tensor(s206.get_mfcc()), s206.get_sc(), torch.tensor(horn), torch.tensor(position)
 
     def __len__(self):
         return self.len
