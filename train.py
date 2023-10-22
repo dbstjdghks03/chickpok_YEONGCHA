@@ -45,10 +45,8 @@ beta = args.beta
 lr = args.lr
 
 if __name__ == '__main__':
-    skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=42)
+    skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
     MSELoss = nn.MSELoss()
-
-
 
     transform = ["amp", "flip", "neg", "awgn", "abgn", "argn", "avgn", "apgn", "sine", "ampsegment", "aun", "phn",
                  "fshift"]
@@ -56,23 +54,22 @@ if __name__ == '__main__':
     train_dataset = YoungDataSet(root=root, is_npy=True, transform=transform)
     test_dataset = YoungDataSet(root=root, is_npy=True, transform=None)
     data_list = train_dataset.data_list
+    for epoch in range(epochs):
+        print(f"{epoch}th epoch: fold {fold}:  starting.")
+        for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[5] for item in data_list])):
+            train_set = torch.utils.data.Subset(train_dataset, train_indices)
+            test_set = torch.utils.data.Subset(test_dataset, test_indices)
 
-    for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[5] for item in data_list])):
-        train_set = torch.utils.data.Subset(train_dataset, train_indices)
-        test_set = torch.utils.data.Subset(test_dataset, test_indices)
+            train_loader = DataLoader(train_set, batch_size=batch, shuffle=True, num_workers=num_workers, pin_memory=True)
+            test_loader = DataLoader(test_set, batch_size=batch, shuffle=False, num_workers=num_workers, pin_memory=True)
 
-        train_loader = DataLoader(train_set, batch_size=batch, shuffle=True, num_workers=num_workers, pin_memory=True)
-        test_loader = DataLoader(test_set, batch_size=batch, shuffle=False, num_workers=num_workers, pin_memory=True)
+            train_losses = []
+            test_losses = []
+            model = PCAModel(n_components).to(device)
+            # optimizer로는 Adam 사용
+            optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-        train_losses = []
-        test_losses = []
-        model = PCAModel(n_components).to(device)
-        # optimizer로는 Adam 사용
-        optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-
-        for epoch in range(epochs):
             model.train()
-            print(f"fold {fold}: {epoch}th epoch starting.")
             epoch_test_loss = 0
             epoch_train_loss = 0
             train_len = 0
