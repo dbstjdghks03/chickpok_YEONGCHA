@@ -16,9 +16,8 @@ parser.add_argument('--filepath', type=str)
 
 args = parser.parse_args()
 
-#filepath = args.filepath
-filepath = "../dataset/train_tdms/221102_H/S206/Test_10.tdms"
-
+filepath = args.filepath
+#filepath = "../dataset/train_tdms/221102_H/S206/Test_10.tdms"
 
 def tdms_preprocess(tdms_path):
     tdms_file = TdmsFile(tdms_path)
@@ -105,17 +104,21 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     
     output = model(mfcc, sc)
-    print(output)
+    #print(output)
+    print("추론 결과")
+    print("-----------------------------------------------")
+    if output[0][0] >= 1:
+        print("위험 수치 : 정상")
 
-    if output[0][0] > 1:
-        print("위험 수치가")
-
-    elif output[0][0] < 1:
-        pred = 0  
+    elif (output[0][0] < 1) & (output[0][0] >= - 10):
+        print(f"위험 수치 : 주의\n소음원 위치 : {output[0][1]}m")    
+        
+    elif (output[0][0] < -10) & (output[0][0] >= -30):
+        print(f"위험 수치 : 위험\n소음원 위치 : {output[0][1]}m")
         
     else:
-        pred = 1
+        print(f"위험 수치 : 매우 위험\n소음원 위치 : {output[0][1]}m")
+    print("-----------------------------------------------")
 
-    print(pred)
 
 
