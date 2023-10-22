@@ -58,6 +58,8 @@ if __name__ == '__main__':
     data_list = train_dataset.data_list
     train_losses = []
     test_losses = []
+
+    print(data_list)
     for epoch in range(epochs):
         print(f"{epoch}th epoch starting.")
         for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[5] for item in data_list])):
