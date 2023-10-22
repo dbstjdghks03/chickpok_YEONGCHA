@@ -52,8 +52,8 @@ if __name__ == '__main__':
         position_mse += MSELoss(output[:, 1], position)
         test_len += position.shape[0]
         batch_data = {
-            'Predicted_Danger': danger.detach().numpy(),
-            'Predicted_Position': predicted_position.detach().numpy(),
+            'Predicted_Danger': danger.cpu().detach().numpy(),
+            'Predicted_Position': predicted_position.cpu().detach().numpy(),
             'Output': output[:, 0].cpu().detach().numpy(),  # assuming the first dimension of output is what you want
             'Horn': horn.cpu().numpy()
         }
