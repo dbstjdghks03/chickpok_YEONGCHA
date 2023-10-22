@@ -126,6 +126,7 @@ class YoungDataSet(Dataset):
         self.transform = transform
         self.data_list = []
         self.root = root
+        self.len = 0
         for dirpath, dirnames, files in os.walk(root + '/train_json'):
             print(f'Found directory: {dirpath}')
             for file_name in files:
@@ -161,6 +162,8 @@ class YoungDataSet(Dataset):
 
                     except:
                         continue
+
+                    self.len += 1
                     self.data_list.append([s206_audio, batcam_path, train, horn, position, cluster, data])
 
     def __getitem__(self, idx):
@@ -188,6 +191,7 @@ class TestYoungDataSet(Dataset):
         self.transform = transform
         self.data_list = []
         self.root = root
+        self.len = 0
         for dirpath, dirnames, files in os.walk(root + '/train_json'):
             print(f'Found directory: {dirpath}')
             for file_name in files:
@@ -218,6 +222,7 @@ class TestYoungDataSet(Dataset):
                         else:
                             cluster = 'CL_NN'
 
+                    self.len += 1
                     self.data_list.append([s206_path, batcam_path, train, horn, position, cluster, data])
 
     def __getitem__(self, idx):
@@ -228,6 +233,8 @@ class TestYoungDataSet(Dataset):
 
         return torch.tensor(s206.get_mfcc()), s206.get_sc(), horn, torch.tensor(position)
 
+    def __len__(self):
+        return self.len
 
 
 if __name__ == "__main__":
