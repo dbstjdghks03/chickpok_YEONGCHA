@@ -33,7 +33,7 @@ class PCAModel(nn.Module):
         res = self.Resnet(mfcc)
         sc = sc.squeeze()
 
-        res_reduced = self.ResLayer(res)
+        res_reduced = self.MFCCLayer(res)
         print(res_reduced.shape)
         sc_reduced = self.SCLayer(sc)
         print(res_reduced, sc_reduced)
