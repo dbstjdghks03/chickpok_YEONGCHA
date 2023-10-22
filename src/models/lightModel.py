@@ -35,6 +35,9 @@ class PCALightModel(L.LightningModule):
 
         self.train_time = 0
 
+        self.train_acc = torchmetrics.classification.BinaryAccuracy()
+        self.valid_acc = torchmetrics.classification.BinaryAccuracy()
+
     def on_train_start(self):
         print('Current cuda device: ', self.device)
 
@@ -47,8 +50,11 @@ class PCALightModel(L.LightningModule):
     def training_step(self, batch, batch_idx):
         mfcc, sc, horn, position = batch
         output = self.model(mfcc, sc)
+        predictions = torch.tensor([1 if out[0] > 0 else -1 for out in output])
         train_loss = self.loss(output, horn, position, self.alpha, self.beta)
+        train_acc = self.train_acc(predictions, horn)
         self.log("train_loss", train_loss, on_epoch=True, prog_bar=True)
+        self.log("train_acc", train_acc, on_epoch=True, prog_bar=True)
 
         return train_loss
 
@@ -62,8 +68,12 @@ class PCALightModel(L.LightningModule):
     def validation_step(self, batch, batch_idx):
         mfcc, sc, horn, position = batch
         output = self.model(mfcc, sc)
+        predictions = torch.tensor([1 if out[0] > 0 else -1 for out in output])
+        test_acc = self.valid_acc(predictions, horn)
         test_loss = self.loss(output, horn, position, self.alpha, self.beta)
         self.log("test_loss", test_loss, on_epoch=True, prog_bar=True)
+        self.log("test_acc", test_acc, on_epoch=True, prog_bar=True)
+
 
     # def on_validation_epoch_end(self):
     #     val_loss = sum([ssim_loss(self.targets[fname], self.reconstructions[fname]) for fname in self.reconstructions])

@@ -62,7 +62,7 @@ if __name__ == '__main__':
         test_loader = DataLoader(test_set, batch_size=batch, shuffle=False, num_workers=num_workers, pin_memory=True)
 
         model = PCALightModel(net_name, n_components, epochs, lr, loss, alpha, beta).to(device)
-        trainer = Trainer(accelerator="gpu")
+        trainer = Trainer(accelerator="gpu", max_epochs=epochs)
         trainer.fit(model, train_loader, test_loader)
         # for epoch in range(epochs):
         #     model.train()
