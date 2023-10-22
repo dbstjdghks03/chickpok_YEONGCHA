@@ -70,6 +70,7 @@ class PCAModel(nn.Module):
         # down = self.down(start).squeeze()
         res_reduced = self.ResLayer(res)
         sc_reduced = self.SCLayer(sc)
+
         # print(res_reduced.shape, sc_reduced.shape)
         # res_reduced = self.PCA(res)
         # sc_reduced = self.PCA(sc)

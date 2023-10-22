@@ -108,8 +108,8 @@ if __name__ == '__main__':
                 test_len += position.shape[0]
 
             accuracy = correct_predictions / test_len
-            std = np.mean(lst_for_var)**(1/2)
-            confi_interval_width = 3.92 * std / (len(lst_for_var)**(1/2))
+            std = torch.mean(torch.tensor(lst_for_var))**(1/2)
+            confi_interval_width = 3.92 * std / (len(torch.tensor(lst_for_var))**(1/2))
 
             print(f'train_loss: {epoch_train_loss/train_len}')
             print('[Test set] Average loss: {:.4f}, Horn Accuracy: {}/{} ({:.2f}%), Confidence Interval Width: {}\n'.format(
