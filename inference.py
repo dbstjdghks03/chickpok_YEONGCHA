@@ -51,6 +51,9 @@ if __name__ == '__main__':
         correct_predictions += (predictions == horn).float().sum()
         position_mse += MSELoss(output[:, 1], position)
         test_len += position.shape[0]
+
+        danger = danger.cpu().detach().numpy()
+        print(danger)
         batch_data = {
             'Predicted_Danger': danger.cpu().detach().numpy(),
             'Predicted_Position': predicted_position.cpu().detach().numpy(),
