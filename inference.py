@@ -53,9 +53,9 @@ if __name__ == '__main__':
         test_len += position.shape[0]
 
         danger = danger.cpu().detach().numpy()
-        print(danger)
+        danger = ["정상" if out >= 1 else "주의" if out < 1 and out >= -10 else "위험" if out < -10 and out >= -30 else "매우 위험" for out in danger]
         batch_data = {
-            'Predicted_Danger': danger.cpu().detach().numpy(),
+            'Predicted_Danger': danger,
             'Predicted_Position': predicted_position.cpu().detach().numpy(),
             'label_Position': position.cpu().detach().numpy(),  # assuming the first dimension of output is what you want
             'label_Horn': horn.cpu().detach().numpy()
