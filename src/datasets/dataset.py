@@ -99,14 +99,14 @@ class PreProcess:
         if not isinstance(x, torch.Tensor):
             x = torch.tensor(x)
 
-        stft = torch.stft(
+        stft = torch.view_as_real(torch.stft(
             x,
             n_fft=2048,
             hop_length=275,
             win_length=1600,
             normalized=False,
             return_complex=True
-        ).view_as_real()
+        ))
         return self.getrgb(stft, stft.min(), stft.max())
 
     def get_sc(self):
