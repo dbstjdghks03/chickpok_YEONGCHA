@@ -5,6 +5,36 @@ import torchvision.models as models
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
+class NewModel(nn.Module):
+    def __init__(self, n_components):
+        super(NewModel, self).__init__()
+        self.Resnet = Resnet()
+
+        self.SCLayer = nn.Sequential(nn.Linear(3195, n_components))  # Set out_features to 30
+        self.ResLayer = nn.Sequential(nn.Linear(2048, n_components))  # Set out_features to 30
+
+        self.PCA = PCA(n_components=n_components)
+        self.SVM = nn.Linear(2 * n_components, 2)
+
+    def forward(self, mfcc, stft, sc):
+        mfcc_res = self.Resnet(mfcc)
+        stft_res = self.Resnet(stft)
+        sc = sc.squeeze()
+
+        print(stft_res)
+        res_reduced = self.ResLayer(res)
+
+        sc_reduced = self.SCLayer(sc)
+
+        # res_reduced = self.PCA(res)
+        # sc_reduced = self.PCA(sc)
+        res_reduced = res_reduced.view(res_reduced.size(0), -1)
+        sc_reduced = sc_reduced.view(sc_reduced.size(0), -1)
+
+        combined_feat = torch.concat((res_reduced, sc_reduced), -1)
+        out = self.SVM(combined_feat)
+
+        return out
 class PCAModel(nn.Module):
     def __init__(self, n_components):
         super(PCAModel, self).__init__()
