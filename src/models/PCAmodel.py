@@ -32,7 +32,7 @@ class PCAModel(nn.Module):
     def forward(self, mfcc, sc):
         res = self.Resnet(mfcc)
         sc = sc.squeeze()
-
+        print(res.shape)
         res_reduced = self.MFCCLayer(res)
         print(res_reduced.shape)
         sc_reduced = self.SCLayer(sc)
