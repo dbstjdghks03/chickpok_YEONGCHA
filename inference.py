@@ -22,6 +22,7 @@ num_workers = args.num_workers
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 n_components = 40
+MSELoss = nn.MSELoss(reduction="sum")
 
 if __name__ == '__main__':
     model = PCAModel(n_components).to(device)
