@@ -12,7 +12,7 @@ from src.models.PCAmodel import PCAModel
 
 class PCALightModel(L.LightningModule):
     def __init__(self, n_components, num_epochs, lr, loss, alpha, beta):
-        super(self, PCALightModel).__init__()
+        super().__init__()
         self.lr = lr
         self.loss = loss
         self.report_interval = report_interval
