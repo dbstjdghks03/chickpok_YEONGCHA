@@ -94,7 +94,6 @@ class PreProcess:
         normalized_amplitude = (amplitude - min_amplitude) / (max_amplitude - min_amplitude)
 
         flat = list(normalized_amplitude.flatten())
-
         for i in range(len(flat)):
             # RGB 색상 계산
             r = int(flat[i] * 255)
@@ -120,10 +119,9 @@ class PreProcess:
                 "center": True  # default behavior in librosa, adjust if needed
             }
         )(y)
-
         # Scaling the MFCC (equivalent to preprocessing.scale in sklearn)
         mean = torch.mean(mfcc, dim=1, keepdim=True)
-        std = torch.std(mfcc, dim=1, keepdim=True)
+        std = torch.std(mfcc, dim=1, keepdim=True) + 1e-5
         mfcc = (mfcc - mean) / std
 
         return self.getrgb(mfcc, mfcc.min(), mfcc.max())
