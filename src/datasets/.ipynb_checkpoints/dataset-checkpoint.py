@@ -31,57 +31,23 @@ class_to_idx = {
 
 def tdms_preprocess(tdms_path):
     tdms_file = TdmsFile(tdms_path)
-
-    if ('Channel97' in tdms_file['RawData']) & ('Channel98' in tdms_file['RawData']):
-        triggerA = tdms_file['RawData']['Channel97']
-        triggerB = tdms_file['RawData']['Channel98']
-        lst = []
-        for i in range(len(triggerA.data)):
-            if (triggerA.data[i] == 1) or (triggerB.data[i] == 1):
-                lst.append(1)
-            else:
-                lst.append(0)
-
-        indices = [index for index, value in enumerate(lst) if value == 1]
-
-    elif 'Channel97' in tdms_file['RawData']:
-        triggerA = tdms_file['RawData']['Channel97']
-        lst = []
-        for i in range(len(triggerA.data)):
-            if triggerA.data[i] == 1:
-                lst.append(1)
-        indices = [index for index, value in enumerate(lst) if value == 1]
-
-    elif 'Channel98' in tdms_file['RawData']:
-        triggerB = tdms_file['RawData']['Channel98']
-        lst = []
-        for i in range(len(triggerB.data)):
-            if triggerB.data[i] == 1:
-                lst.append(1)
-        indices = [index for index, value in enumerate(lst) if value == 1]
-
     L = list(name for name in tdms_file['RawData'].channels())
     L_str = list(map(str, L))
     data_lst = []
     peak_lst = []
     for string in L_str:
         num = re.sub(r'[^0-9]', '', string)
-        if num and num != 97 and num != 98:
+        if num:
             selected_data = tdms_file['RawData'][f'Channel{num}']
             data_lst.append(selected_data.data)
             peak_lst.append(max(abs(selected_data.data)))
-
     data_sum = sum(data_lst)
     peakAmp = max(abs(data_sum))
     maxPeak = max(peak_lst)
 
     y = (data_sum / peakAmp) * maxPeak
-
-    y = y[indices[0]:indices[-1]]
-
-    y = np.pad(y, (0, 638825 - len(y)), mode='constant')
-
-    return y
+    Beampower = None
+    return y, Beampower
 
 
 class PreProcess:
@@ -160,7 +126,6 @@ class YoungDataSet(Dataset):
         self.transform = transform
         self.data_list = []
         self.root = root
-        self.len = 0
         for dirpath, dirnames, files in os.walk(root + '/train_json'):
             print(f'Found directory: {dirpath}')
             for file_name in files:
@@ -196,13 +161,10 @@ class YoungDataSet(Dataset):
 
                     except:
                         continue
-
-                    self.len += 1
                     self.data_list.append([s206_audio, batcam_path, train, horn, position, cluster, data])
 
     def __getitem__(self, idx):
         s206_audio, batcam_path, _, horn, position, _, _ = self.data_list[idx]
-        s206_audio = s206_audio.squeeze()
         s206_audio = s206_audio.squeeze()
         # s206_audio = TdmsFile(self.root + s206_path)
         # batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
@@ -222,18 +184,22 @@ class YoungDataSet(Dataset):
 
 
 class TestYoungDataSet(Dataset):
-    def __init__(self, root, transform=None):
+    def __init__(self, root, is_npy, transform=None):
         self.transform = transform
         self.data_list = []
         self.root = root
-        self.len = 0
         for dirpath, dirnames, files in os.walk(root + '/train_json'):
+            print(f'Found directory: {dirpath}')
             for file_name in files:
                 if file_name.endswith(".json"):
                     with open(dirpath + '/' + file_name, 'r') as f:
                         data = json.load(f)
                     folder_name = dirpath.split("/")[-1]
                     s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206', data['title_s206'])
+                    if is_npy:
+                        s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206',
+                                                 data['title_s206'].split(".")[0] + ".npy")
+
                     batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
                                                data['title_batcam2'])
                     train = train_to_idx[data['Train']]
@@ -252,18 +218,16 @@ class TestYoungDataSet(Dataset):
                         else:
                             cluster = 'CL_NN'
 
-                    self.len += 1
                     self.data_list.append([s206_path, batcam_path, train, horn, position, cluster, data])
 
     def __getitem__(self, idx):
         s206_path, batcam_path, _, horn, position, _, _ = self.data_list[idx]
-        s206_audio = tdms_preprocess(self.root + s206_path)
+        s206_audio = tdms_preprocess(self.root + '/'+s206_path)
         s206_audio = s206_audio.squeeze()
         s206 = PreProcess(s206_audio)
-        return torch.tensor(s206.get_mfcc()), s206.get_sc(), torch.tensor(horn), torch.tensor(position)
 
-    def __len__(self):
-        return self.len
+        return torch.tensor(s206.get_mfcc()), s206.get_sc(), horn, torch.tensor(position)
+
 
 
 if __name__ == "__main__":
