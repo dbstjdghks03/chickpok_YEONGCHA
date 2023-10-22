@@ -105,9 +105,8 @@ class PreProcess:
             hop_length=275,
             win_length=1600,
             normalized=False,
-            return_complex=False
-        )
-        print(stft)
+            return_complex=True
+        ).view_as_real()
         return self.getrgb(stft, stft.min(), stft.max())
 
     def get_sc(self):
