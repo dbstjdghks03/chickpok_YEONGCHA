@@ -55,8 +55,9 @@ if __name__ == '__main__':
     test_dataset = YoungDataSet(root=root, is_npy=True, transform=None)
     data_list = train_dataset.data_list
     for epoch in range(epochs):
-        print(f"{epoch}th epoch: fold {fold}:  starting.")
+        print(f"{epoch}th epoch starting.")
         for fold, (train_indices, test_indices) in enumerate(skf.split(data_list, [item[5] for item in data_list])):
+            print(f"fold {fold} starting")
             train_set = torch.utils.data.Subset(train_dataset, train_indices)
             test_set = torch.utils.data.Subset(test_dataset, test_indices)
 
