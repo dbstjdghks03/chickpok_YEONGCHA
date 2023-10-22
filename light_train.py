@@ -12,6 +12,7 @@ import os
 import random
 import numpy as np
 from lightning.pytorch import Trainer, seed_everything
+import torchmetrics
 
 seed = 42
 seed_everything(42, workers=True)
