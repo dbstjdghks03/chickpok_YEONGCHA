@@ -9,6 +9,7 @@ from src.models.PCAmodel import PCAModel
 import pandas as pd
 from torch.utils.data import DataLoader
 import os
+import torch.nn as nn
 parser = argparse.ArgumentParser()
 
 # 3. parser.add_argument로 받아들일 인수를 추가해나간다.
