@@ -46,7 +46,7 @@ lr = args.lr
 
 if __name__ == '__main__':
     skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
-    MSELoss = nn.MSELoss()
+    MSELoss = nn.MSELoss(reduction="sum")
 
     transform = ["amp", "flip", "neg", "awgn", "abgn", "argn", "avgn", "apgn", "sine", "ampsegment", "aun", "phn",
                  "fshift"]
