@@ -11,14 +11,14 @@ class PCAModel(nn.Module):
         super(PCAModel, self).__init__()
         self.Resnet = Resnet()
 
-        # self.SCLayer = nn.Sequential(nn.Linear(3195, n_components))  # Set out_features to 30
+        self.SCLayer = nn.Sequential(nn.Linear(3195, n_components))  # Set out_features to 30
         self.ResLayer = nn.Sequential(nn.Linear(2048, n_components))  # Set out_features to 30
-        self.StartLayer = nn.Sequential(
-            nn.ReflectionPad1d(3),
-            nn.Conv1d(1, nf, kernel_size=7, stride=1, bias=False),
-            nn.BatchNorm1d(nf),
-            nn.LeakyReLU(0.2, True),
-        )
+        # self.StartLayer = nn.Sequential(
+        #     nn.ReflectionPad1d(3),
+        #     nn.Conv1d(1, nf, kernel_size=7, stride=1, bias=False),
+        #     nn.BatchNorm1d(nf),
+        #     nn.LeakyReLU(0.2, True),
+        # )
         # self.MFCCLayer = nn.Sequential(
         #     nn.ReflectionPad1d(3),
         #     nn.Conv1d(1, nf, kernel_size=7, stride=1, bias=False),
@@ -31,16 +31,16 @@ class PCAModel(nn.Module):
         # nf = 32, clip_length = None, embed_dim = 128, n_layers = 4, nhead = 8, factors = [4, 4, 4, 4],
         # n_classes = None, dim_feedforward = 512
 
-
-        model = []
-        for i, f in enumerate(factors):
-            model += [Down(channels=nf, d=f, k=f * 2 + 1)]
-            nf *= 2
-            if i % 2 == 0:
-                model += [ResBlock1dTF(dim=nf, dilation=1, kernel_size=15)]
-
-        model.append(nn.AdaptiveAvgPool2d((None, 1)))
-        self.down = nn.Sequential(*model)
+        #
+        # model = []
+        # for i, f in enumerate(factors):
+        #     model += [Down(channels=nf, d=f, k=f * 2 + 1)]
+        #     nf *= 2
+        #     if i % 2 == 0:
+        #         model += [ResBlock1dTF(dim=nf, dilation=1, kernel_size=15)]
+        #
+        # model.append(nn.AdaptiveAvgPool2d((None, 1)))
+        # self.down = nn.Sequential(*model)
 
         # factors = [2, 2]
         # model = []
@@ -57,22 +57,24 @@ class PCAModel(nn.Module):
         #                      n_classes=n_classes, dim_feedforward=dim_feedforward)
 
     def forward(self, mfcc, sc):
-        res = self.Resnet(mfcc).unsqueeze(1)
-        sc = sc.squeeze().unsqueeze(1)
-        combined_feat = torch.concat((res, sc), -1)
+        res = self.Resnet(mfcc)
+        sc = sc.squeeze()
 
-        start = self.StartLayer(combined_feat)
-        down = self.down(start).squeeze()
-        # res_reduced = self.MFCCLayer(res)
-        # sc_reduced = self.SCLayer(sc)
+
+        # combined_feat = torch.concat((res, sc), -1)
+
+        # start = self.StartLayer(combined_feat)
+        # down = self.down(start).squeeze()
+        res_reduced = self.ResLayer(res)
+        sc_reduced = self.SCLayer(sc)
         # print(res_reduced.shape, sc_reduced.shape)
         # res_reduced = self.PCA(res)
         # sc_reduced = self.PCA(sc)
         # res_reduced = res_reduced.view(res_reduced.size(0), -1)
         # sc_reduced = sc_reduced.view(sc_reduced.size(0), -1)
         # print(down.shape)
-        # combined_feat = torch.concat((res_reduced, sc_reduced), -1)
-        out = self.SVM(down)
+        combined_feat = torch.concat((res_reduced, sc_reduced), -1)
+        out = self.SVM(combined_feat)
 
         return out
 
