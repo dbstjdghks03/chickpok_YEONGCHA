@@ -187,7 +187,7 @@ class YoungDataSet(Dataset):
 
 
 class TestYoungDataSet(Dataset):
-    def __init__(self, root, is_npy, transform=None):
+    def __init__(self, root, transform=None):
         self.transform = transform
         self.data_list = []
         self.root = root
@@ -200,10 +200,6 @@ class TestYoungDataSet(Dataset):
                         data = json.load(f)
                     folder_name = dirpath.split("/")[-1]
                     s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206', data['title_s206'])
-                    if is_npy:
-                        s206_path = os.path.join(root, '/train_tdms', folder_name, 'S206',
-                                                 data['title_s206'].split(".")[0] + ".npy")
-
                     batcam_path = os.path.join(root, '/train_tdms', folder_name, 'BATCAM2',
                                                data['title_batcam2'])
                     train = train_to_idx[data['Train']]
@@ -227,7 +223,7 @@ class TestYoungDataSet(Dataset):
 
     def __getitem__(self, idx):
         s206_path, batcam_path, _, horn, position, _, _ = self.data_list[idx]
-        s206_audio = tdms_preprocess(self.root +s206_path)
+        s206_audio = tdms_preprocess(self.root + s206_path)
         s206_audio = s206_audio.squeeze()
         s206 = PreProcess(s206_audio)
 
