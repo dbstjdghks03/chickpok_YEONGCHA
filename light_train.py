@@ -28,6 +28,7 @@ parser.add_argument('--n_components', type=int, default=30)
 parser.add_argument('--lr', type=float, default=1e-5)
 parser.add_argument('--alpha', type=float, default=1e-3)
 parser.add_argument('--beta', type=float, default=1)
+parser.add_argument('--net_name', type=str, default="model")
 
 args = parser.parse_args()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -40,6 +41,7 @@ n_components = args.n_components
 alpha = args.alpha
 beta = args.beta
 lr = args.lr
+net_name = args.net_name
 
 if __name__ == '__main__':
     skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=42)
@@ -59,7 +61,7 @@ if __name__ == '__main__':
         train_loader = DataLoader(train_set, batch_size=batch, shuffle=True, num_workers=num_workers, pin_memory=True)
         test_loader = DataLoader(test_set, batch_size=batch, shuffle=False, num_workers=num_workers, pin_memory=True)
 
-        model = PCALightModel(n_components, epochs, lr, loss, alpha, beta).to(device)
+        model = PCALightModel(net_name, n_components, epochs, lr, loss, alpha, beta).to(device)
         trainer = Trainer(accelerator="gpu")
         trainer.fit(model, train_loader, test_loader)
         # for epoch in range(epochs):

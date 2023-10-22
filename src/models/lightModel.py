@@ -11,7 +11,7 @@ from src.models.PCAmodel import PCAModel
 
 
 class PCALightModel(L.LightningModule):
-    def __init__(self, n_components, num_epochs, lr, loss, alpha, beta):
+    def __init__(self, net_name, n_components, num_epochs, lr, loss, alpha, beta):
         super().__init__()
         self.lr = lr
         self.loss = loss
