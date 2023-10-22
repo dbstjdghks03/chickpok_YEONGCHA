@@ -13,7 +13,7 @@ class PCAModel(nn.Module):
 
         self.SCLayer = nn.Sequential(nn.Linear(3195, n_components))  # Set out_features to 30
         self.ResLayer = nn.Sequential(nn.Linear(2048, n_components))  # Set out_features to 30
-
+        nf = 2
         self.SCLayer = nn.Sequential([
             nn.ReflectionPad1d(3),
             nn.Conv1d(1, nf, kernel_size=7, stride=1, bias=False),
