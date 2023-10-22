@@ -51,9 +51,10 @@ class PCALightModel(L.LightningModule):
     def training_step(self, batch, batch_idx):
         mfcc, sc, horn, position = batch
         output = self.model(mfcc, sc)
-        predictions = torch.tensor([1 if out[0] > 0 else -1 for out in output])
+        predictions = torch.tensor([1 if out[0] > 0 else 0 for out in output])
+        label = torch.tensor([1 if out == 1 else 0 for out in horn])
         train_loss = self.loss(output, horn, position, self.alpha, self.beta)
-        train_acc = self.train_acc(predictions, horn)
+        train_acc = self.train_acc(predictions, label)
         self.log("train_loss", train_loss, on_epoch=True, prog_bar=True)
         self.log("train_acc", train_acc, on_epoch=True, prog_bar=True)
 
@@ -70,7 +71,8 @@ class PCALightModel(L.LightningModule):
         mfcc, sc, horn, position = batch
         output = self.model(mfcc, sc)
         predictions = torch.tensor([1 if out[0] > 0 else -1 for out in output])
-        test_acc = self.valid_acc(predictions, horn)
+        label = torch.tensor([1 if out == 1 else 0 for out in horn])
+        test_acc = self.valid_acc(predictions, label)
         test_loss = self.loss(output, horn, position, self.alpha, self.beta)
         self.log("test_loss", test_loss, on_epoch=True, prog_bar=True)
         self.log("test_acc", test_acc, on_epoch=True, prog_bar=True)
