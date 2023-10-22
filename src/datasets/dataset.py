@@ -166,6 +166,7 @@ class YoungDataSet(Dataset):
 
     def __getitem__(self, idx):
         s206_audio, batcam_path, _, horn, position, _, _ = self.data_list[idx]
+        s206_audio = s206_audio.squeeze()
         print(s206_audio.shape)
         # s206_audio = TdmsFile(self.root + s206_path)
         # batcam_audio, batcam_beam = tdms_preprocess(self.root + batcam_path)
