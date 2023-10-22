@@ -33,7 +33,7 @@ if __name__ == '__main__':
     correct_predictions = 0
 
     test_dataset = TestYoungDataSet(root=root, transform=None)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers=num_workers, pin_memory=True)
+    test_loader = DataLoader(test_dataset, batch_size=2, shuffle=False, num_workers=num_workers, pin_memory=True)
 
     df = pd.DataFrame(columns=['Predicted_Danger', 'Predicted_Position', 'label_Horn', 'label_Position'])
 
