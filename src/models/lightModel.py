@@ -7,7 +7,7 @@ import copy
 import torch.nn as nn
 import time
 import torch
-from PCAmodel import PCAModel
+from src.models.PCAmodel import PCAModel
 
 
 class PCALightModel(L.LightningModule):
