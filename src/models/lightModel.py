@@ -15,7 +15,7 @@ class PCALightModel(L.LightningModule):
         super().__init__()
         self.lr = lr
         self.loss = loss
-        self.report_interval = report_interval
+        # self.report_interval = report_interval
         self.num_epochs = num_epochs
         self.val_start = 0
         self.model = PCAModel(n_components)
