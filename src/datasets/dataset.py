@@ -155,7 +155,12 @@ class YoungDataSet(Dataset):
                             cluster = 'CL_HN'
                         else:
                             cluster = 'CL_NN'
-                    s206_audio = np.load(self.root + s206_path)
+
+
+                    try:
+                        s206_audio = np.load(self.root + s206_path)
+                    except:
+                        continue
                     self.data_list.append([s206_audio, batcam_path, train, horn, position, cluster, data])
 
     def __getitem__(self, idx):
