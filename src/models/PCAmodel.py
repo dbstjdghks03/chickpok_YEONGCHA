@@ -35,7 +35,7 @@ class PCAModel(nn.Module):
 
         res_reduced = self.MFCCLayer(res)
         sc_reduced = self.SCLayer(sc)
-        print(res_reduced, sc_reduced)
+        print(res_reduced.shape, sc_reduced.shape)
         # res_reduced = self.PCA(res)
         # sc_reduced = self.PCA(sc)
         res_reduced = res_reduced.view(res_reduced.size(0), -1)
