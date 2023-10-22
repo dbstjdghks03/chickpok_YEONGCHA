@@ -30,11 +30,10 @@ class PCAModel(nn.Module):
         self.SVM = nn.Linear(2 * n_components, 2)
 
     def forward(self, mfcc, sc):
-        res = self.Resnet(mfcc)
-        sc = sc.squeeze()
-        print(res.shape)
+        res = self.Resnet(mfcc).unsqueeze(1)
+        sc = sc.squeeze().unsqueeze(1)
+
         res_reduced = self.MFCCLayer(res)
-        print(res_reduced.shape)
         sc_reduced = self.SCLayer(sc)
         print(res_reduced, sc_reduced)
         # res_reduced = self.PCA(res)
