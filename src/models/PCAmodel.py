@@ -26,7 +26,7 @@ class PCAModel(nn.Module):
         #     nn.LeakyReLU(0.2, True),
         # )
         self.PCA = PCA(n_components=n_components)
-        self.SVM = nn.Linear(512, 2)
+        self.SVM = nn.Linear(2*n_components, 2)
 
         # nf = 32, clip_length = None, embed_dim = 128, n_layers = 4, nhead = 8, factors = [4, 4, 4, 4],
         # n_classes = None, dim_feedforward = 512
