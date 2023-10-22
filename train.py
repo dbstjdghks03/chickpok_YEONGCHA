@@ -91,6 +91,8 @@ if __name__ == '__main__':
             position_mse = 0
             test_len = 0
             correct_predictions = 0
+            lst_for_var = []
+
             for i, (mfcc, sc, horn, position) in enumerate(test_loader):
                 mfcc, sc, horn, position = mfcc.to(device).float(), sc.to(
                     device).float(), horn.to(device), position.to(device).float()
@@ -101,14 +103,18 @@ if __name__ == '__main__':
                 print(predictions, horn, predictions == horn)
                 correct_predictions += (predictions == horn).float().sum()
                 position_mse += MSELoss(output[:, 1], position)
+                lst_for_var.append(MSELoss(output[:, 1], position)**2)
+
                 test_len += position.shape[0]
 
             accuracy = correct_predictions / test_len
+            std = np.mean(lst_for_var)**(1/2)
+            confi_interval_width = 3.92 * std / (len(lst_for_var)**(1/2))
 
             print(f'train_loss: {epoch_train_loss/train_len}')
-            print('[Test set] Average loss: {:.4f}, Horn Accuracy: {}/{} ({:.2f}%), Position MSE: {}\n'.format(
+            print('[Test set] Average loss: {:.4f}, Horn Accuracy: {}/{} ({:.2f}%), Confidence Interval Width: {}\n'.format(
                 epoch_test_loss / test_len, correct_predictions, test_len,
-                accuracy, position_mse/test_len))
+                accuracy, confi_interval_width))
 
             train_losses.append(epoch_train_loss)
             test_losses.append(epoch_test_loss)
