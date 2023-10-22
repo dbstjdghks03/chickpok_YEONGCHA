@@ -31,23 +31,57 @@ class_to_idx = {
 
 def tdms_preprocess(tdms_path):
     tdms_file = TdmsFile(tdms_path)
+
+    if ('Channel97' in tdms_file['RawData']) & ('Channel98' in tdms_file['RawData']):
+        triggerA = tdms_file['RawData']['Channel97']
+        triggerB = tdms_file['RawData']['Channel98']
+        lst = []
+        for i in range(len(triggerA.data)):
+            if (triggerA.data[i] == 1) or (triggerB.data[i] == 1):
+                lst.append(1)
+            else:
+                lst.append(0)
+
+        indices = [index for index, value in enumerate(lst) if value == 1]
+
+    elif 'Channel97' in tdms_file['RawData']:
+        triggerA = tdms_file['RawData']['Channel97']
+        lst = []
+        for i in range(len(triggerA.data)):
+            if triggerA.data[i] == 1:
+                lst.append(1)
+        indices = [index for index, value in enumerate(lst) if value == 1]
+
+    elif 'Channel98' in tdms_file['RawData']:
+        triggerB = tdms_file['RawData']['Channel98']
+        lst = []
+        for i in range(len(triggerB.data)):
+            if triggerB.data[i] == 1:
+                lst.append(1)
+        indices = [index for index, value in enumerate(lst) if value == 1]
+
     L = list(name for name in tdms_file['RawData'].channels())
     L_str = list(map(str, L))
     data_lst = []
     peak_lst = []
     for string in L_str:
         num = re.sub(r'[^0-9]', '', string)
-        if num:
+        if num and num != 97 and num != 98:
             selected_data = tdms_file['RawData'][f'Channel{num}']
             data_lst.append(selected_data.data)
             peak_lst.append(max(abs(selected_data.data)))
+
     data_sum = sum(data_lst)
     peakAmp = max(abs(data_sum))
     maxPeak = max(peak_lst)
 
     y = (data_sum / peakAmp) * maxPeak
-    Beampower = None
-    return y, Beampower
+
+    y = y[indices[0]:indices[-1]]
+
+    y = np.pad(y, (0, 638825 - len(y)), mode='constant')
+
+    return y
 
 
 class PreProcess:
