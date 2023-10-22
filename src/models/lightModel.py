@@ -11,14 +11,16 @@ from PCAmodel import PCAModel
 
 
 class PCALightModel(L.LightningModule):
-    def __init__(self, n_components, report_interval, num_epochs, lr):
+    def __init__(self, n_components, num_epochs, lr, loss, alpha, beta):
         super(self, PCALightModel).__init__()
         self.lr = lr
+        self.loss = loss
         self.report_interval = report_interval
         self.num_epochs = num_epochs
         self.val_start = 0
         self.model = PCAModel(n_components)
-
+        self.alpha = alpha
+        self.beta = beta
         self.start_epoch = 0
         self.start_iter = 0
         self.len_loader = 0
@@ -43,8 +45,8 @@ class PCALightModel(L.LightningModule):
     def training_step(self, batch, batch_idx):
         mfcc, sc, horn, position = batch
         output = model(mfcc, sc)
-        train_loss = loss(output, horn, position, alpha, beta)
-        self.log("train_loss", train_loss, on_epoch=True)
+        train_loss = self.loss(output, horn, position, self.alpha, self.beta)
+        self.log("train_loss", train_loss, on_epoch=True, prog_bar=True)
 
         return train_loss
 
@@ -58,8 +60,8 @@ class PCALightModel(L.LightningModule):
     def validation_step(self, batch, batch_idx):
         mfcc, sc, horn, position = batch
         output = model(mfcc, sc)
-        test_loss = loss(output, horn, position, alpha, beta)
-        self.log("test_loss", test_loss, on_epoch=True)
+        test_loss = self.loss(output, horn, position, self.alpha, self.beta)
+        self.log("test_loss", test_loss, on_epoch=True, prog_bar=True)
 
     # def on_validation_epoch_end(self):
     #     val_loss = sum([ssim_loss(self.targets[fname], self.reconstructions[fname]) for fname in self.reconstructions])
