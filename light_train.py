@@ -109,7 +109,3 @@ if __name__ == '__main__':
 
     torch.save(model.state_dict(), 'model.pt')
 
-    plt.plot(test_losses, label="test_loss")
-    plt.plot(train_losses, label="train_loss")
-    plt.legend()
-    plt.show()
