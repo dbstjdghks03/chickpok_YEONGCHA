@@ -1,4 +1,5 @@
 import warnings
+
 warnings.filterwarnings(action='ignore')
 
 import torch
@@ -10,73 +11,22 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class PCAModel(nn.Module):
-    def __init__(self, n_components, nf=32, factors = [4, 4, 4, 4]):
+    def __init__(self, n_components):
         super(PCAModel, self).__init__()
         self.Resnet = Resnet()
 
-        self.SCLayer = nn.Sequential(nn.Linear(3195, n_components))  # Set out_features to 30
-        self.ResLayer = nn.Sequential(nn.Linear(2048, n_components))  # Set out_features to 30
-        # self.StartLayer = nn.Sequential(
-        #     nn.ReflectionPad1d(3),
-        #     nn.Conv1d(1, nf, kernel_size=7, stride=1, bias=False),
-        #     nn.BatchNorm1d(nf),
-        #     nn.LeakyReLU(0.2, True),
-        # )
-        # self.MFCCLayer = nn.Sequential(
-        #     nn.ReflectionPad1d(3),
-        #     nn.Conv1d(1, nf, kernel_size=7, stride=1, bias=False),
-        #     nn.BatchNorm1d(nf),
-        #     nn.LeakyReLU(0.2, True),
-        # )
+        self.SCLayer = nn.Sequential(nn.Linear(3195, n_components), nn.ReLU())  # Set out_features to 30
+        self.ResLayer = nn.Sequential(nn.Linear(2048, n_components), nn.ReLU())  # Set out_features to 30
         self.PCA = PCA(n_components=n_components)
-        self.SVM = nn.Linear(2*n_components, 2)
-
-        # nf = 32, clip_length = None, embed_dim = 128, n_layers = 4, nhead = 8, factors = [4, 4, 4, 4],
-        # n_classes = None, dim_feedforward = 512
-
-        #
-        # model = []
-        # for i, f in enumerate(factors):
-        #     model += [Down(channels=nf, d=f, k=f * 2 + 1)]
-        #     nf *= 2
-        #     if i % 2 == 0:
-        #         model += [ResBlock1dTF(dim=nf, dilation=1, kernel_size=15)]
-        #
-        # model.append(nn.AdaptiveAvgPool2d((None, 1)))
-        # self.down = nn.Sequential(*model)
-
-        # factors = [2, 2]
-        # model = []
-        # for _, f in enumerate(factors):
-        #     for i in range(1):
-        #         for j in range(3):
-        #             model += [ResBlock1dTF(dim=nf, dilation=3 ** j, kernel_size=15)]
-        #     model += [Down(channels=nf, d=f, k=f * 2 + 1)]
-        #     nf *= 2
-        # self.down2 = nn.Sequential(*model)
-        # self.project = nn.Conv1d(nf, embed_dim, 1)
-        # self.clip_length = clip_length
-        # self.tf = TAggregate(embed_dim=embed_dim, clip_length=clip_length, n_layers=n_layers, nhead=nhead,
-        #                      n_classes=n_classes, dim_feedforward=dim_feedforward)
+        self.SVM = nn.Linear(2 * n_components, 2)
 
     def forward(self, mfcc, sc):
         res = self.Resnet(mfcc)
         sc = sc.squeeze()
 
-
-        # combined_feat = torch.concat((res, sc), -1)
-
-        # start = self.StartLayer(combined_feat)
-        # down = self.down(start).squeeze()
         res_reduced = self.ResLayer(res)
         sc_reduced = self.SCLayer(sc)
 
-        # print(res_reduced.shape, sc_reduced.shape)
-        # res_reduced = self.PCA(res)
-        # sc_reduced = self.PCA(sc)
-        # res_reduced = res_reduced.view(res_reduced.size(0), -1)
-        # sc_reduced = sc_reduced.view(sc_reduced.size(0), -1)
-        # print(down.shape)
         combined_feat = torch.concat((res_reduced, sc_reduced), -1)
         out = self.SVM(combined_feat)
 
@@ -267,8 +217,7 @@ class SoundNetRaw(nn.Module):
         return pred
 
 
-if __name__ == '__main__':
-    pass
+
 if __name__ == "__main__":
     a = torch.rand(16, 3, 200, 3000)
     b = torch.rand(16, 2000, 1)
